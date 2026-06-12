@@ -30,6 +30,28 @@ final class BayMcAuthVelocityPluginTest {
         assertTrue(text.contains("ExceptionSummary.databaseFailureLines(exception)"));
     }
 
+    @Test
+    void velocityCommandsUseDetailedActionPermissionsAtRuntime() throws Exception {
+        Path source = findProjectRoot().resolve("modules/auth-velocity/src/main/java/com/baymc/auth/velocity/BayMcAuthVelocityPlugin.java");
+        String text = Files.readString(source);
+
+        assertTrue(text.contains("requirePermission(invocation, BayMcAuthConstants.PERMISSION_VELOCITY_HELP)"));
+        assertTrue(text.contains("requirePermission(invocation, BayMcAuthConstants.PERMISSION_VELOCITY_STATUS)"));
+        assertTrue(text.contains("requirePermission(invocation, BayMcAuthConstants.PERMISSION_VELOCITY_RELOAD)"));
+        assertTrue(text.contains("case \"status\" -> BayMcAuthConstants.PERMISSION_VELOCITY_AFFIX_STATUS"));
+        assertTrue(text.contains("case \"reload\" -> BayMcAuthConstants.PERMISSION_VELOCITY_AFFIX_RELOAD"));
+        assertFalse(text.contains("requirePermission(invocation, BayMcAuthConstants.PERMISSION_VELOCITY)"));
+    }
+
+    @Test
+    void velocityPluginDescriptionUsesChinese() throws Exception {
+        Path source = findProjectRoot().resolve("modules/auth-velocity/src/main/java/com/baymc/auth/velocity/BayMcAuthVelocityPlugin.java");
+        String text = Files.readString(source);
+
+        assertFalse(text.contains("description = \"BayMcAuth authentication plugin for BayMc\""));
+        assertTrue(text.contains("description = \"Velocity 与 Paper/Folia 网络统一认证插件\""));
+    }
+
     private static Path findProjectRoot() {
         Path current = Path.of("").toAbsolutePath();
         while (current != null) {

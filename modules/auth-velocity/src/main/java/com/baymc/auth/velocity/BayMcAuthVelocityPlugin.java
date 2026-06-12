@@ -55,7 +55,7 @@ import java.util.UUID;
     id = BayMcAuthConstants.PLUGIN_ID,
     name = BayMcAuthConstants.PLUGIN_NAME,
     version = BayMcAuthConstants.VERSION,
-    description = "BayMcAuth authentication plugin for BayMc",
+    description = "Velocity 与 Paper/Folia 网络统一认证插件",
     authors = {"Konsheng"}
 )
 public final class BayMcAuthVelocityPlugin {
@@ -211,11 +211,10 @@ public final class BayMcAuthVelocityPlugin {
                 }
                 return;
             }
-            if (!invocation.source().hasPermission(BayMcAuthConstants.PERMISSION_VELOCITY)) {
-                invocation.source().sendMessage(messages.component("common.no-permission", Map.of()));
-                return;
-            }
             if (args.length == 1 || "help".equalsIgnoreCase(args[1])) {
+                if (!requirePermission(invocation, BayMcAuthConstants.PERMISSION_VELOCITY_HELP)) {
+                    return;
+                }
                 invocation.source().sendMessage(Component.text("/baymcauth velocity status"));
                 invocation.source().sendMessage(Component.text("/baymcauth velocity reload"));
                 invocation.source().sendMessage(Component.text("/baymcauth velocity affix status"));
@@ -223,14 +222,45 @@ public final class BayMcAuthVelocityPlugin {
                 return;
             }
             switch (args[1].toLowerCase(java.util.Locale.ROOT)) {
-                case "status" -> invocation.source().sendMessage(messages.component("velocity.status", Map.of("database", databaseAvailable ? "available" : "unavailable")));
+                case "status" -> {
+                    if (!requirePermission(invocation, BayMcAuthConstants.PERMISSION_VELOCITY_STATUS)) {
+                        return;
+                    }
+                    invocation.source().sendMessage(messages.component("velocity.status", Map.of("database", databaseAvailable ? "available" : "unavailable")));
+                }
                 case "reload" -> {
+                    if (!requirePermission(invocation, BayMcAuthConstants.PERMISSION_VELOCITY_RELOAD)) {
+                        return;
+                    }
                     reloadInternal();
                     invocation.source().sendMessage(messages.component("velocity.reload-success", Map.of()));
                 }
-                case "affix" -> invocation.source().sendMessage(messages.component("velocity.affix-status", Map.of("mode", config.offlineAffix().mode())));
+                case "affix" -> {
+                    String action = args.length >= 3 ? args[2].toLowerCase(java.util.Locale.ROOT) : "status";
+                    String permission = switch (action) {
+                        case "status" -> BayMcAuthConstants.PERMISSION_VELOCITY_AFFIX_STATUS;
+                        case "reload" -> BayMcAuthConstants.PERMISSION_VELOCITY_AFFIX_RELOAD;
+                        default -> null;
+                    };
+                    if (permission == null) {
+                        invocation.source().sendMessage(messages.component("common.unknown-command", Map.of()));
+                        return;
+                    }
+                    if (!requirePermission(invocation, permission)) {
+                        return;
+                    }
+                    invocation.source().sendMessage(messages.component("velocity.affix-status", Map.of("mode", config.offlineAffix().mode())));
+                }
                 default -> invocation.source().sendMessage(messages.component("common.unknown-command", Map.of()));
             }
+        }
+
+        private boolean requirePermission(Invocation invocation, String permission) {
+            if (invocation.source().hasPermission(permission) || invocation.source().hasPermission(BayMcAuthConstants.PERMISSION_ADMIN)) {
+                return true;
+            }
+            invocation.source().sendMessage(messages.component("common.no-permission", Map.of()));
+            return false;
         }
 
         @Override

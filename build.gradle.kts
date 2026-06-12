@@ -41,13 +41,13 @@ subprojects {
 
 tasks.register("shadowJar") {
     group = "build"
-    description = "Builds the final BayMcAuth plugin jar."
+    description = "构建最终的 BayMcAuth 插件 Jar"
     dependsOn(":modules:auth-plugin:shadowJar")
 }
 
 tasks.register("printVersion") {
     group = "help"
-    description = "Prints the base BayMcAuth plugin version."
+    description = "输出 BayMcAuth 插件基础版本"
     doLast {
         println(basePluginVersion)
     }

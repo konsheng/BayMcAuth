@@ -60,42 +60,44 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
-            messages.send(sender, sender.hasPermission(BayMcAuthConstants.PERMISSION_ADMIN) ? "help.admin" : "help.user");
-            return true;
+            return permitted(sender, BayMcAuthConstants.PERMISSION_HELP, () -> {
+                messages.send(sender, sender.hasPermission(BayMcAuthConstants.PERMISSION_ADMIN) ? "help.admin" : "help.user");
+                return true;
+            });
         }
         return execute(sender, args[0].toLowerCase(java.util.Locale.ROOT), Arrays.copyOfRange(args, 1, args.length));
     }
 
     public boolean execute(CommandSender sender, String subcommand, String[] args) {
         return switch (subcommand) {
-            case "help" -> help(sender);
-            case "status" -> status(sender);
-            case "register" -> player(sender, player -> requireArgs(sender, args, 3) && authService.register(player, args[0], args[1], args[2]));
-            case "login" -> player(sender, player -> requireArgs(sender, args, 1) && authService.login(player, args[0], args.length >= 2 ? args[1] : null));
-            case "logout" -> player(sender, player -> {
+            case "help" -> permitted(sender, BayMcAuthConstants.PERMISSION_HELP, () -> help(sender));
+            case "status" -> permitted(sender, BayMcAuthConstants.PERMISSION_STATUS, () -> status(sender));
+            case "register" -> permitted(sender, BayMcAuthConstants.PERMISSION_REGISTER, () -> player(sender, player -> requireArgs(sender, args, 3) && authService.register(player, args[0], args[1], args[2])));
+            case "login" -> permitted(sender, BayMcAuthConstants.PERMISSION_LOGIN, () -> player(sender, player -> requireArgs(sender, args, 1) && authService.login(player, args[0], args.length >= 2 ? args[1] : null)));
+            case "logout" -> permitted(sender, BayMcAuthConstants.PERMISSION_LOGOUT, () -> player(sender, player -> {
                 authService.logout(player);
                 messages.send(sender, "login.required");
                 return true;
-            });
+            }));
             case "2fa" -> player(sender, player -> totp(player, args));
-            case "resetpassword" -> player(sender, player -> requireArgs(sender, args, 3) && authService.resetPassword(player, args[0], args[1], args[2]));
+            case "resetpassword" -> permitted(sender, BayMcAuthConstants.PERMISSION_RESET_PASSWORD, () -> player(sender, player -> requireArgs(sender, args, 3) && authService.resetPassword(player, args[0], args[1], args[2])));
             case "password" -> player(sender, player -> password(player, args));
-            case "invite" -> admin(sender, BayMcAuthConstants.PERMISSION_INVITE, () -> invite(sender, args));
-            case "reserve" -> admin(sender, BayMcAuthConstants.PERMISSION_RESERVE, () -> reserve(sender, args));
-            case "user" -> admin(sender, BayMcAuthConstants.PERMISSION_ADMIN, () -> user(sender, args));
-            case "lock" -> admin(sender, "baymcauth.lock", () -> requireArgs(sender, args, 2) && lock(sender, args[0], join(args, 1)));
-            case "unlock" -> admin(sender, "baymcauth.unlock", () -> requireArgs(sender, args, 1) && unlock(sender, args[0]));
-            case "reset2fa" -> admin(sender, "baymcauth.reset2fa", () -> requireArgs(sender, args, 1) && reset2fa(sender, args[0]));
-            case "confirm" -> confirm(sender);
+            case "invite" -> invite(sender, args);
+            case "reserve" -> reserve(sender, args);
+            case "user" -> user(sender, args);
+            case "lock" -> admin(sender, BayMcAuthConstants.PERMISSION_LOCK, () -> requireArgs(sender, args, 2) && lock(sender, args[0], join(args, 1)));
+            case "unlock" -> admin(sender, BayMcAuthConstants.PERMISSION_UNLOCK, () -> requireArgs(sender, args, 1) && unlock(sender, args[0]));
+            case "reset2fa" -> admin(sender, BayMcAuthConstants.PERMISSION_RESET_2FA, () -> requireArgs(sender, args, 1) && reset2fa(sender, args[0]));
+            case "confirm" -> permitted(sender, BayMcAuthConstants.PERMISSION_CONFIRM, () -> confirm(sender));
             case "reload" -> admin(sender, BayMcAuthConstants.PERMISSION_RELOAD, () -> {
                 reloadAction.run();
                 messages.send(sender, "admin.reload-success");
                 return true;
             });
-            case "velocity" -> {
+            case "velocity" -> permitted(sender, BayMcAuthConstants.PERMISSION_VELOCITY_HELP, () -> {
                 messages.send(sender, "velocity.command-on-paper");
-                yield true;
-            }
+                return true;
+            });
             default -> {
                 messages.send(sender, "common.unknown-command");
                 yield true;
@@ -121,21 +123,21 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         return switch (args[0].toLowerCase(java.util.Locale.ROOT)) {
-            case "setup" -> {
+            case "setup" -> permitted(player, BayMcAuthConstants.PERMISSION_TOTP_SETUP, () -> {
                 authService.setupTotp(player);
-                yield true;
-            }
-            case "confirm" -> requireArgs(player, args, 2) && authService.confirmTotp(player, args[1]);
-            case "code" -> requireArgs(player, args, 2) && authService.totpCode(player, args[1]);
-            case "disable" -> requireArgs(player, args, 3) && authService.disableTotp(player, args[1], args[2]);
-            case "status" -> {
+                return true;
+            });
+            case "confirm" -> permitted(player, BayMcAuthConstants.PERMISSION_TOTP_CONFIRM, () -> requireArgs(player, args, 2) && authService.confirmTotp(player, args[1]));
+            case "code" -> permitted(player, BayMcAuthConstants.PERMISSION_TOTP_CODE, () -> requireArgs(player, args, 2) && authService.totpCode(player, args[1]));
+            case "disable" -> permitted(player, BayMcAuthConstants.PERMISSION_TOTP_DISABLE, () -> requireArgs(player, args, 3) && authService.disableTotp(player, args[1], args[2]));
+            case "status" -> permitted(player, BayMcAuthConstants.PERMISSION_TOTP_STATUS, () -> {
                 UserRecord user = users.findByUuid(player.getUniqueId()).orElse(null);
                 messages.send(player, "totp.status", Map.of(
                     "enabled", String.valueOf(user != null && user.totpEnabled()),
                     "confirmed", String.valueOf(user != null && user.totpConfirmed())
                 ));
-                yield true;
-            }
+                return true;
+            });
             default -> {
                 messages.send(player, "common.unknown-command");
                 yield true;
@@ -148,9 +150,9 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         return switch (args[0].toLowerCase(java.util.Locale.ROOT)) {
-            case "enable" -> requireArgs(player, args, 3) && authService.passwordEnable(player, args[1], args[2]);
-            case "disable" -> requireArgs(player, args, 2) && authService.passwordDisable(player, args[1]);
-            case "change" -> requireArgs(player, args, 4) && authService.passwordChange(player, args[1], args[2], args[3]);
+            case "enable" -> permitted(player, BayMcAuthConstants.PERMISSION_PASSWORD_ENABLE, () -> requireArgs(player, args, 3) && authService.passwordEnable(player, args[1], args[2]));
+            case "disable" -> permitted(player, BayMcAuthConstants.PERMISSION_PASSWORD_DISABLE, () -> requireArgs(player, args, 2) && authService.passwordDisable(player, args[1]));
+            case "change" -> permitted(player, BayMcAuthConstants.PERMISSION_PASSWORD_CHANGE, () -> requireArgs(player, args, 4) && authService.passwordChange(player, args[1], args[2], args[3]));
             default -> {
                 messages.send(player, "common.unknown-command");
                 yield true;
@@ -163,24 +165,28 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         return switch (args[0].toLowerCase(java.util.Locale.ROOT)) {
-            case "create" -> {
+            case "create" -> admin(sender, BayMcAuthConstants.PERMISSION_INVITE_CREATE, () -> {
                 int count = args.length >= 2 ? Integer.parseInt(args[1]) : 1;
                 int days = args.length >= 3 ? Integer.parseInt(args[2]) : configRef.get().invite().defaultExpireDays();
                 var codes = inviteService.create(sender, count, days);
                 messages.send(sender, "invite.created", Map.of("count", String.valueOf(codes.size()), "codes", String.join(", ", codes.stream().map(item -> item.code()).toList())));
-                yield true;
-            }
-            case "list", "export" -> {
+                return true;
+            });
+            case "list" -> admin(sender, BayMcAuthConstants.PERMISSION_INVITE_LIST, () -> {
                 inviteService.list().forEach(invite -> messages.send(sender, "invite.list-item", inviteMap(invite)));
-                yield true;
-            }
-            case "info" -> {
+                return true;
+            });
+            case "export" -> admin(sender, BayMcAuthConstants.PERMISSION_INVITE_EXPORT, () -> {
+                inviteService.list().forEach(invite -> messages.send(sender, "invite.list-item", inviteMap(invite)));
+                return true;
+            });
+            case "info" -> admin(sender, BayMcAuthConstants.PERMISSION_INVITE_INFO, () -> {
                 if (requireArgs(sender, args, 2)) {
                     messages.send(sender, "invite.info", inviteMap(inviteService.info(args[1])));
                 }
-                yield true;
-            }
-            case "revoke" -> {
+                return true;
+            });
+            case "revoke" -> admin(sender, BayMcAuthConstants.PERMISSION_INVITE_REVOKE, () -> {
                 if (requireArgs(sender, args, 2)) {
                     String code = args[1];
                     confirmations.put(sender.getName(), "撤销邀请码 " + code, () -> {
@@ -189,8 +195,8 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
                     }, configRef.get().confirm().expire());
                     messages.send(sender, "admin.confirm-needed", Map.of("action", "撤销邀请码 " + code));
                 }
-                yield true;
-            }
+                return true;
+            });
             default -> {
                 messages.send(sender, "common.unknown-command");
                 yield true;
@@ -203,25 +209,25 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         return switch (args[0].toLowerCase(java.util.Locale.ROOT)) {
-            case "offline" -> {
+            case "offline" -> admin(sender, BayMcAuthConstants.PERMISSION_RESERVE_OFFLINE, () -> {
                 if (requireArgs(sender, args, 2)) {
                     var lock = reserveService.reserve(sender, args[1]);
                     messages.send(sender, "admin.reserve-success", Map.of("player", lock.playerName()));
                 }
-                yield true;
-            }
-            case "info" -> {
+                return true;
+            });
+            case "info" -> admin(sender, BayMcAuthConstants.PERMISSION_RESERVE_INFO, () -> {
                 if (requireArgs(sender, args, 2)) {
                     var lock = reserveService.info(args[1]);
                     messages.send(sender, "admin.user-info", Map.of("player", lock.playerName(), "uuid", String.valueOf(lock.ownerUuid()), "account_type", lock.accountType().name(), "locked", String.valueOf(!lock.usable())));
                 }
-                yield true;
-            }
-            case "list" -> {
+                return true;
+            });
+            case "list" -> admin(sender, BayMcAuthConstants.PERMISSION_RESERVE_LIST, () -> {
                 reserveService.list().forEach(lock -> messages.send(sender, "admin.user-info", Map.of("player", lock.playerName(), "uuid", String.valueOf(lock.ownerUuid()), "account_type", lock.accountType().name(), "locked", String.valueOf(!lock.usable()))));
-                yield true;
-            }
-            case "revoke" -> {
+                return true;
+            });
+            case "revoke" -> admin(sender, BayMcAuthConstants.PERMISSION_RESERVE_REVOKE, () -> {
                 if (requireArgs(sender, args, 2)) {
                     String playerName = args[1];
                     confirmations.put(sender.getName(), "撤销预留名 " + playerName, () -> {
@@ -230,8 +236,8 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
                     }, configRef.get().confirm().expire());
                     messages.send(sender, "admin.confirm-needed", Map.of("action", "撤销预留名 " + playerName));
                 }
-                yield true;
-            }
+                return true;
+            });
             default -> {
                 messages.send(sender, "common.unknown-command");
                 yield true;
@@ -243,11 +249,18 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
         if (!requireArgs(sender, args, 2)) {
             return true;
         }
-        if (!"info".equalsIgnoreCase(args[0]) && !"history".equalsIgnoreCase(args[0])) {
-            messages.send(sender, "common.unknown-command");
-            return true;
-        }
-        var found = users.findByName(args[1]).stream().findFirst();
+        return switch (args[0].toLowerCase(java.util.Locale.ROOT)) {
+            case "info" -> admin(sender, BayMcAuthConstants.PERMISSION_USER_INFO, () -> userInfo(sender, args[1]));
+            case "history" -> admin(sender, BayMcAuthConstants.PERMISSION_USER_HISTORY, () -> userInfo(sender, args[1]));
+            default -> {
+                messages.send(sender, "common.unknown-command");
+                yield true;
+            }
+        };
+    }
+
+    private boolean userInfo(CommandSender sender, String playerName) {
+        var found = users.findByName(playerName).stream().findFirst();
         if (found.isEmpty()) {
             messages.send(sender, "admin.user-not-found");
             return true;
@@ -320,6 +333,14 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
         return action.run(player);
     }
 
+    private boolean permitted(CommandSender sender, String permission, UserAction action) {
+        if (!sender.hasPermission(permission) && !sender.hasPermission(BayMcAuthConstants.PERMISSION_ADMIN)) {
+            messages.send(sender, "common.no-permission");
+            return true;
+        }
+        return action.run();
+    }
+
     private boolean admin(CommandSender sender, String permission, AdminAction action) {
         if (!sender.hasPermission(permission) && !sender.hasPermission(BayMcAuthConstants.PERMISSION_ADMIN)) {
             messages.send(sender, "common.no-permission");
@@ -387,6 +408,11 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
     @FunctionalInterface
     private interface PlayerAction {
         boolean run(Player player);
+    }
+
+    @FunctionalInterface
+    private interface UserAction {
+        boolean run();
     }
 
     @FunctionalInterface

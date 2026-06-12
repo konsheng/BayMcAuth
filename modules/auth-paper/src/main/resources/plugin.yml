@@ -5,48 +5,208 @@ api-version: "1.21"
 folia-supported: true
 authors:
   - "Konsheng"
-description: "BayMcAuth authentication plugin for BayMc"
+description: "Velocity 与 Paper/Folia 网络统一认证插件"
 commands:
   baymcauth:
-    description: "BayMcAuth main command"
+    description: "显示帮助并执行 BayMcAuth 认证管理命令"
     usage: "/baymcauth help"
     aliases:
       - "auth"
   register:
-    description: "Alias of /baymcauth register"
+    description: "注册当前账号"
     usage: "/register <password> <confirm-password> <invite-code>"
+    permission: "baymcauth.register"
   login:
-    description: "Alias of /baymcauth login"
+    description: "登录当前账号"
     usage: "/login <password> [totp-code]"
+    permission: "baymcauth.login"
   logout:
-    description: "Alias of /baymcauth logout"
+    description: "登出当前账号"
     usage: "/logout"
+    permission: "baymcauth.logout"
   2fa:
-    description: "Alias of /baymcauth 2fa"
+    description: "管理当前账号的 TOTP 二次验证"
     usage: "/2fa <setup|confirm|code|disable|status>"
   resetpassword:
-    description: "Alias of /baymcauth resetpassword"
+    description: "通过 TOTP 重置当前账号密码"
     usage: "/resetpassword <new-password> <confirm-password> <totp-code>"
+    permission: "baymcauth.resetpassword"
 permissions:
   baymcauth.user:
+    description: "授予普通玩家基础认证命令权限"
     default: true
+    children:
+      baymcauth.help: true
+      baymcauth.status: true
+      baymcauth.register: true
+      baymcauth.login: true
+      baymcauth.logout: true
+      baymcauth.resetpassword: true
+      baymcauth.confirm: true
+      baymcauth.password.enable: true
+      baymcauth.password.disable: true
+      baymcauth.password.change: true
+      baymcauth.2fa.setup: true
+      baymcauth.2fa.confirm: true
+      baymcauth.2fa.code: true
+      baymcauth.2fa.disable: true
+      baymcauth.2fa.status: true
   baymcauth.admin:
+    description: "授予 BayMcAuth 管理员全部命令权限"
     default: "op"
+    children:
+      baymcauth.user: true
+      baymcauth.reload: true
+      baymcauth.invite: true
+      baymcauth.invite.create: true
+      baymcauth.invite.list: true
+      baymcauth.invite.export: true
+      baymcauth.invite.info: true
+      baymcauth.invite.revoke: true
+      baymcauth.reserve: true
+      baymcauth.reserve.offline: true
+      baymcauth.reserve.info: true
+      baymcauth.reserve.list: true
+      baymcauth.reserve.revoke: true
+      baymcauth.user.info: true
+      baymcauth.user.history: true
+      baymcauth.lock: true
+      baymcauth.unlock: true
+      baymcauth.reset2fa: true
+      baymcauth.velocity: true
+      baymcauth.velocity.help: true
+      baymcauth.velocity.status: true
+      baymcauth.velocity.reload: true
+      baymcauth.velocity.affix.status: true
+      baymcauth.velocity.affix.reload: true
+  baymcauth.help:
+    description: "查看 BayMcAuth 帮助"
+    default: false
+  baymcauth.status:
+    description: "查看 Paper/Folia 端认证服务状态"
+    default: false
+  baymcauth.register:
+    description: "注册当前账号"
+    default: false
+  baymcauth.login:
+    description: "登录当前账号"
+    default: false
+  baymcauth.logout:
+    description: "登出当前账号"
+    default: false
+  baymcauth.resetpassword:
+    description: "通过 TOTP 重置当前账号密码"
+    default: false
+  baymcauth.confirm:
+    description: "确认当前执行者名下的高风险操作"
+    default: false
+  baymcauth.password.enable:
+    description: "为当前账号启用密码登录"
+    default: false
+  baymcauth.password.disable:
+    description: "关闭当前账号密码登录"
+    default: false
+  baymcauth.password.change:
+    description: "修改当前账号密码"
+    default: false
+  baymcauth.2fa.setup:
+    description: "创建当前账号的 TOTP 待确认密钥"
+    default: false
+  baymcauth.2fa.confirm:
+    description: "确认并启用当前账号 TOTP"
+    default: false
+  baymcauth.2fa.code:
+    description: "提交当前账号 TOTP 验证码"
+    default: false
+  baymcauth.2fa.disable:
+    description: "关闭当前账号 TOTP"
+    default: false
+  baymcauth.2fa.status:
+    description: "查看当前账号 TOTP 状态"
+    default: false
   baymcauth.reload:
+    description: "重载 Paper/Folia 端配置和语言文件"
     default: "op"
   baymcauth.invite:
+    description: "授予邀请码管理命令集合"
     default: "op"
+    children:
+      baymcauth.invite.create: true
+      baymcauth.invite.list: true
+      baymcauth.invite.export: true
+      baymcauth.invite.info: true
+      baymcauth.invite.revoke: true
+  baymcauth.invite.create:
+    description: "创建邀请码"
+    default: false
+  baymcauth.invite.list:
+    description: "列出邀请码"
+    default: false
+  baymcauth.invite.export:
+    description: "导出邀请码列表"
+    default: false
+  baymcauth.invite.info:
+    description: "查看邀请码详情"
+    default: false
+  baymcauth.invite.revoke:
+    description: "撤销邀请码"
+    default: false
   baymcauth.reserve:
+    description: "授予预留名管理命令集合"
     default: "op"
+    children:
+      baymcauth.reserve.offline: true
+      baymcauth.reserve.info: true
+      baymcauth.reserve.list: true
+      baymcauth.reserve.revoke: true
+  baymcauth.reserve.offline:
+    description: "预留无前后缀离线名"
+    default: false
+  baymcauth.reserve.info:
+    description: "查看预留名详情"
+    default: false
+  baymcauth.reserve.list:
+    description: "列出预留名"
+    default: false
+  baymcauth.reserve.revoke:
+    description: "撤销预留名"
+    default: false
   baymcauth.user.info:
+    description: "查看用户基础信息"
     default: "op"
   baymcauth.user.history:
+    description: "查看用户历史信息"
     default: "op"
   baymcauth.lock:
+    description: "锁定用户账号"
     default: "op"
   baymcauth.unlock:
+    description: "解锁用户账号"
     default: "op"
   baymcauth.reset2fa:
+    description: "重置玩家 TOTP"
     default: "op"
   baymcauth.velocity:
+    description: "授予 Velocity 管理命令集合"
     default: "op"
+    children:
+      baymcauth.velocity.help: true
+      baymcauth.velocity.status: true
+      baymcauth.velocity.reload: true
+      baymcauth.velocity.affix.status: true
+      baymcauth.velocity.affix.reload: true
+  baymcauth.velocity.help:
+    description: "查看 Velocity 端 BayMcAuth 帮助"
+    default: false
+  baymcauth.velocity.status:
+    description: "查看 Velocity 端认证服务状态"
+    default: false
+  baymcauth.velocity.reload:
+    description: "重载 Velocity 端配置和语言文件"
+    default: false
+  baymcauth.velocity.affix.status:
+    description: "查看 Velocity 端离线名前后缀模式"
+    default: false
+  baymcauth.velocity.affix.reload:
+    description: "重新显示 Velocity 端离线名前后缀模式"
+    default: false
