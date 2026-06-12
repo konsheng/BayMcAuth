@@ -1,0 +1,224 @@
+# 基础设置
+settings:
+  # 插件语言文件
+  language: zh_CN
+
+  # 时区, 用于日志, 审计和时间显示
+  timezone: Asia/Shanghai
+
+# 数据库设置
+database:
+  # 数据库类型, 当前固定为 mysql
+  type: mysql
+
+  host: 127.0.0.1
+  port: 3306
+  database: baymc
+  username: root
+  password: ""
+
+  # 表前缀
+  table-prefix: baymc_auth_
+
+  # 连接池设置, 时间支持 s, m, h, d
+  pool:
+    maximum-pool-size: 10
+    minimum-idle: 2
+    connection-timeout: "10s"
+    idle-timeout: "10m"
+    max-lifetime: "30m"
+
+# Redis 设置
+redis:
+  # 是否启用 Redis 会话
+  enabled: true
+
+  host: 127.0.0.1
+  port: 6379
+  password: ""
+  database: 0
+
+  # Redis key 前缀
+  key-prefix: baymcauth
+
+  connect-timeout: "5s"
+  command-timeout: "5s"
+
+# 会话设置
+session:
+  # 会话模式, 可选 redis, local
+  mode: redis
+
+  # 登录会话有效期, 时间支持 s, m, h, d
+  expire: "7d"
+
+  # 是否允许已在线玩家在 Redis 异常时继续使用本地会话
+  keep-online-when-redis-down: true
+
+# 账号类型入口
+account-types:
+  # 自定义前缀或后缀离线账号入口
+  name-affix: true
+
+  # 管理员预留无前后缀离线账号入口
+  name-plain: true
+
+  # 中文名离线账号入口
+  name-chinese: true
+
+# 自定义前缀和后缀离线账号
+offline-affix:
+  # 匹配模式, 可选 prefix-only, suffix-only, both
+  mode: both
+
+  # 前缀列表, 留空表示不匹配任何前缀, 留空使用 []
+  prefixes:
+    - "_"
+
+  # 后缀列表, 留空表示不匹配任何后缀, 留空使用 []
+  suffixes:
+    - "_"
+
+  case-sensitive: true
+  reject-wrong-case: true
+
+# 管理员预留无前后缀名字
+plain-name:
+  # 撤销预留名是否需要 confirm
+  revoke-requires-confirm: true
+
+# 中文名离线账号
+chinese-name:
+  # 是否允许中文名离线账号
+  allow: true
+
+# 邀请码设置
+invite:
+  require-for-offline-register: true
+  default-expire-days: 7
+
+  format:
+    prefix: BAYMC
+    groups:
+      - 4
+      - 4
+    separator: "-"
+    charset: "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
+    uppercase: true
+
+# 密码设置
+password:
+  min-length: 6
+  max-length: 64
+  bcrypt-cost: 12
+
+  # 风险说明, 保存当前密码明文仅用于指定审计需求
+  store-current-plain: true
+
+  # 风险说明, 保存历史密码明文仅用于指定审计需求
+  store-history-plain: true
+
+# TOTP 设置
+totp:
+  issuer: BayMc
+  digits: 6
+  period: "30s"
+  window: 1
+
+# 登录设置
+login:
+  timeout: "60s"
+  allow-premium-auto-login: true
+
+# 失败锁定设置
+failure-lock:
+  enabled: true
+
+  password:
+    account-thresholds:
+      - attempts: 5
+        lock: "10m"
+      - attempts: 10
+        lock: "1h"
+      - attempts: 20
+        lock: "24h"
+
+  totp:
+    account-thresholds:
+      - attempts: 5
+        lock: "10m"
+      - attempts: 10
+        lock: "1h"
+
+  ip:
+    thresholds:
+      - attempts: 10
+        lock: "10m"
+      - attempts: 30
+        lock: "1h"
+      - attempts: 100
+        lock: "24h"
+
+# 登录提示
+login-prompt:
+  bossbar:
+    enabled: true
+    update-interval: "1s"
+
+  title:
+    enabled: true
+    send-interval: "10s"
+
+  subtitle:
+    enabled: true
+    send-interval: "10s"
+
+  actionbar:
+    enabled: true
+    update-interval: "1s"
+
+  chat:
+    enabled: true
+    send-interval: "15s"
+
+# 首次加入提示
+first-join:
+  enabled: true
+  delay: "1s"
+  times: 1
+
+# 黑名单
+blacklist:
+  username:
+    enabled: true
+    remote-urls: []
+    local-extra: []
+    connect-timeout: "5s"
+    read-timeout: "10s"
+    max-file-size: "1mb"
+
+  password:
+    enabled: true
+    remote-urls: []
+    local-extra: []
+    connect-timeout: "5s"
+    read-timeout: "10s"
+    max-file-size: "1mb"
+
+# 审计日志
+audit:
+  enabled: true
+  console: true
+  file: true
+  database: true
+  directory: "logs"
+
+# 安全设置
+security:
+  hide-totp-secret-in-logs: true
+  hide-totp-code-in-logs: true
+  hide-password-in-logs: true
+
+# 高风险操作确认
+confirm:
+  expire: "30s"

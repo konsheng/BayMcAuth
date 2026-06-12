@@ -1,0 +1,127 @@
+# 通用文本
+common:
+  # 消息前缀, 不会自动添加, 需要在具体消息中写入 <prefix>
+  prefix: "<gradient:#55ffff:#ffaa00>[BayMcAuth]</gradient> "
+
+  no-permission: "<prefix><red>你没有权限执行该命令</red>"
+  player-only: "<prefix><red>该命令只能由玩家执行</red>"
+  console-only: "<prefix><red>该命令只能由控制台执行</red>"
+  database-unavailable: "<prefix><red>数据库不可用, 当前操作已被拒绝</red>"
+  redis-unavailable: "<prefix><yellow>Redis 不可用, 当前会话将使用本地缓存</yellow>"
+  unknown-command: "<prefix><red>未知命令</red>"
+
+# 帮助和状态
+help:
+  user:
+    - "<prefix><aqua>/login <密码></aqua> <gray>登录账号</gray>"
+    - "<aqua>/register <密码> <确认密码> <邀请码></aqua> <gray>注册离线账号</gray>"
+    - "<aqua>/2fa setup</aqua> <gray>绑定 TOTP</gray>"
+  admin:
+    - "<prefix><aqua>/baymcauth status</aqua> <gray>查看状态</gray>"
+    - "<aqua>/baymcauth invite create <数量> [有效天数]</aqua>"
+    - "<aqua>/baymcauth reserve offline <玩家名></aqua>"
+    - "<aqua>/baymcauth reload</aqua>"
+
+status:
+  line: "<prefix><green>BayMcAuth 正在运行, 数据库 <database>, Redis <redis></green>"
+
+# 登录相关
+login:
+  success: "<prefix><green>登录成功, 欢迎回来 <player></green>"
+  failed: "<prefix><red>密码错误, 请重新输入</red>"
+  not-registered: "<prefix><red>账号尚未注册</red>"
+  not-required: "<prefix><yellow>当前账号不需要登录</yellow>"
+  need-totp: "<prefix><yellow>密码正确, 请继续输入 TOTP 验证码</yellow>"
+  required:
+    - "<prefix><yellow>你需要先登录</yellow>"
+    - "<gray>使用 /login <密码> 登录</gray>"
+  timeout-kick:
+    - "<red>登录超时</red>"
+    - "<gray>请重新进入服务器后完成登录</gray>"
+
+# 注册相关
+register:
+  required:
+    - "<prefix><yellow>你需要先注册账号</yellow>"
+    - "<gray>使用 /register <密码> <确认密码> <邀请码> 注册</gray>"
+  success: "<prefix><green>注册成功, 欢迎加入 <player></green>"
+  invite-required: "<prefix><red>注册该账号需要邀请码</red>"
+  invalid-invite: "<prefix><red>邀请码无效, 已使用或已过期</red>"
+  not-required: "<prefix><yellow>当前账号不需要注册</yellow>"
+
+# 密码相关
+password:
+  confirm-mismatch: "<prefix><red>两次输入的密码不一致</red>"
+  length: "<prefix><red>密码长度需要在 <min> 到 <max> 位之间</red>"
+  blacklisted: "<prefix><red>该密码命中密码黑名单</red>"
+  enable-success: "<prefix><green>已开启密码登录</green>"
+  disable-success: "<prefix><green>已关闭密码登录</green>"
+  change-success: "<prefix><green>密码已修改, 请重新登录</green>"
+
+# TOTP 相关
+totp:
+  setup:
+    secret:
+      - "<prefix><yellow>请在验证器中手动添加以下密钥</yellow>"
+      - "<gray>Issuer: <issuer></gray>"
+      - "<gray>Account: <account></gray>"
+      - "<gold><secret></gold>"
+    confirm: "<prefix><yellow>输入 /2fa confirm <验证码> 完成绑定</yellow>"
+  enabled: "<prefix><green>TOTP 已启用</green>"
+  disabled: "<prefix><green>TOTP 已关闭</green>"
+  already-enabled: "<prefix><red>TOTP 已经启用</red>"
+  no-pending: "<prefix><red>没有待确认的 TOTP 密钥</red>"
+  code-required: "<prefix><yellow>请输入 TOTP 验证码</yellow>"
+  code-failed: "<prefix><red>TOTP 验证码错误</red>"
+  code-success: "<prefix><green>TOTP 验证成功</green>"
+  status: "<prefix><green>TOTP 状态, enabled=<enabled>, confirmed=<confirmed></green>"
+
+# 邀请码相关
+invite:
+  created: "<prefix><green>已创建 <count> 个邀请码, <codes></green>"
+  used: "<prefix><green>邀请码 <code> 已使用</green>"
+  revoked: "<prefix><green>邀请码 <code> 已撤销</green>"
+  info: "<prefix><green>邀请码 <code>, used=<used>, revoked=<revoked>, expires=<expires></green>"
+  list-item: "<gray><code> used=<used> revoked=<revoked> expires=<expires></gray>"
+
+# 首次加入提示
+first-join:
+  premium:
+    - "<prefix><green>欢迎加入 BayMc, <player></green>"
+  offline-register:
+    - "<prefix><yellow>欢迎加入 BayMc, 你需要先注册账号</yellow>"
+    - "<gray>请使用 /register <密码> <确认密码> <邀请码></gray>"
+
+# 登录提示通道
+login-prompt:
+  bossbar: "<yellow>请登录, 剩余 <time></yellow>"
+  title: "<gold>请登录</gold>"
+  subtitle: "<gray>使用 /login <密码></gray>"
+  actionbar: "<yellow>请登录, 剩余 <time></yellow>"
+  chat:
+    - "<prefix><yellow>请完成登录或注册</yellow>"
+    - "<gray>登录: /login <密码></gray>"
+    - "<gray>注册: /register <密码> <确认密码> <邀请码></gray>"
+
+# 管理员相关
+admin:
+  reload-success: "<prefix><green>配置和语言文件已重载</green>"
+  confirm-needed: "<prefix><yellow>危险操作待确认: <action>, 请在有效期内执行 /baymcauth confirm</yellow>"
+  confirm-none: "<prefix><yellow>没有待确认的危险操作</yellow>"
+  confirm-expired: "<prefix><red>待确认操作已过期</red>"
+  confirm-success: "<prefix><green>已确认并执行: <action></green>"
+  user-not-found: "<prefix><red>没有找到该玩家记录</red>"
+  lock-success: "<prefix><green>玩家 <player> 已锁定</green>"
+  unlock-success: "<prefix><green>玩家 <player> 已解锁</green>"
+  reset2fa-success: "<prefix><green>玩家 <player> 的 TOTP 已重置</green>"
+  reserve-success: "<prefix><green>已预留离线名 <player></green>"
+  reserve-revoked: "<prefix><green>已撤销预留名 <player></green>"
+  user-info: "<prefix><green>玩家 <player>, UUID <uuid>, 类型 <account_type>, 锁定 <locked></green>"
+
+# Velocity 相关
+velocity:
+  command-on-paper: "<prefix><red>该命令由 Velocity 端处理, 请在 Velocity 控制台执行</red>"
+  reload-success: "<prefix><green>Velocity 配置已重载</green>"
+  status: "<prefix><green>Velocity 正在运行, 数据库 <database></green>"
+  affix-status: "<prefix><green>当前 affix 模式: <mode></green>"
+  denied: "<red>连接被拒绝, <reason></red>"
