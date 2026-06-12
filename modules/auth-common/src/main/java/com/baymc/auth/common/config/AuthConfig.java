@@ -120,11 +120,11 @@ public record AuthConfig(
                 thresholds(reader.mapList("failure-lock.ip.thresholds"))
             ),
             new LoginPrompt(
-                channel(reader, "login-prompt.bossbar", "1s"),
-                channel(reader, "login-prompt.title", "10s"),
-                channel(reader, "login-prompt.subtitle", "10s"),
-                channel(reader, "login-prompt.actionbar", "1s"),
-                channel(reader, "login-prompt.chat", "15s")
+                channel(reader, "login-prompt.bossbar", "update-interval", "1s"),
+                channel(reader, "login-prompt.title", "send-interval", "10s"),
+                channel(reader, "login-prompt.subtitle", "send-interval", "10s"),
+                channel(reader, "login-prompt.actionbar", "update-interval", "1s"),
+                channel(reader, "login-prompt.chat", "send-interval", "15s")
             ),
             new FirstJoin(reader.bool("first-join.enabled", true), duration(reader.string("first-join.delay", "1s")), reader.integer("first-join.times", 1)),
             new Blacklist(
@@ -155,8 +155,8 @@ public record AuthConfig(
         return DurationParser.parse(value);
     }
 
-    private static PromptChannel channel(ConfigReader reader, String base, String defaultInterval) {
-        return new PromptChannel(reader.bool(base + ".enabled", true), duration(reader.string(base + ".update-interval", reader.string(base + ".send-interval", defaultInterval))));
+    private static PromptChannel channel(ConfigReader reader, String base, String intervalKey, String defaultInterval) {
+        return new PromptChannel(reader.bool(base + ".enabled", true), duration(reader.string(base + "." + intervalKey, defaultInterval)));
     }
 
     private static BlacklistGroup blacklistGroup(ConfigReader reader, String base) {

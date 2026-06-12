@@ -5,6 +5,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -37,5 +38,28 @@ final class YamlDocumentTest {
         assertTrue(text.contains("用户已有注释"));
         assertTrue(text.contains("timezone"));
         assertTrue(text.contains("database"));
+    }
+
+    @Test
+    void appendsMissingLoginPromptIntervalFromDefaults() throws Exception {
+        Path file = tempDir.resolve("config.yml");
+        Files.writeString(file, """
+            login-prompt:
+              title:
+                enabled: false
+            """);
+
+        YamlDocument document = YamlDocument.load(file, """
+            login-prompt:
+              title:
+                enabled: true
+                send-interval: "10s"
+            """, ignored -> { });
+
+        Map<?, ?> loginPrompt = (Map<?, ?>) document.values().get("login-prompt");
+        Map<?, ?> title = (Map<?, ?>) loginPrompt.get("title");
+        assertEquals(false, title.get("enabled"));
+        assertEquals("10s", title.get("send-interval"));
+        assertTrue(Files.readString(file).contains("send-interval"));
     }
 }
