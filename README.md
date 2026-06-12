@@ -12,7 +12,7 @@ $env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-25.0.3.9-hotspot"
 最终文件:
 
 ```text
-modules/auth-plugin/build/libs/BayMcAuth-1.0.0.jar
+modules/auth-plugin/build/libs/BayMcAuth-1.0.0-SNAPSHOT.jar
 ```
 
 同一个 Jar 放入 Velocity 和 Paper/Folia 的 `plugins` 目录

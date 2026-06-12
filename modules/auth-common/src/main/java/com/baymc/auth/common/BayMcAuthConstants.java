@@ -11,7 +11,7 @@ import java.time.Duration;
 public final class BayMcAuthConstants {
     public static final String PLUGIN_ID = "baymcauth";
     public static final String PLUGIN_NAME = "BayMcAuth";
-    public static final String VERSION = "1.0.0";
+    public static final String VERSION = "1.0.0-SNAPSHOT";
     public static final String DATA_DIRECTORY = "BayMcAuth";
     public static final String MAIN_COMMAND = "baymcauth";
     public static final String MAIN_ALIAS = "auth";
