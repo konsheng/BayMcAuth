@@ -39,7 +39,11 @@ public record AuthConfig(
     public static AuthConfig from(YamlDocument document, Consumer<String> warnings) {
         ConfigReader reader = new ConfigReader(document.values(), warnings);
         return new AuthConfig(
-            new Settings(reader.string("settings.language", "zh_CN"), ZoneId.of(reader.string("settings.timezone", "Asia/Shanghai"))),
+            new Settings(
+                reader.string("settings.language", "zh_CN"),
+                ZoneId.of(reader.string("settings.timezone", "Asia/Shanghai")),
+                reader.bool("settings.debug", false)
+            ),
             new Database(
                 reader.string("database.type", "mysql"),
                 reader.string("database.host", "127.0.0.1"),
@@ -182,7 +186,7 @@ public record AuthConfig(
         return result;
     }
 
-    public record Settings(String language, ZoneId timezone) {
+    public record Settings(String language, ZoneId timezone, boolean debug) {
     }
 
     public record Database(String type, String host, int port, String database, String username, String password, String tablePrefix, Pool pool) {

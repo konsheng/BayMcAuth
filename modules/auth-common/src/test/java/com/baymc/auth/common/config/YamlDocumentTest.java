@@ -62,4 +62,24 @@ final class YamlDocumentTest {
         assertEquals("10s", title.get("send-interval"));
         assertTrue(Files.readString(file).contains("send-interval"));
     }
+
+    @Test
+    void appendsMissingSettingsDebugFromDefaults() throws Exception {
+        Path file = tempDir.resolve("config.yml");
+        Files.writeString(file, """
+            settings:
+              language: zh_CN
+            """);
+
+        YamlDocument document = YamlDocument.load(file, """
+            settings:
+              language: zh_CN
+              timezone: Asia/Shanghai
+              debug: false
+            """, ignored -> { });
+
+        Map<?, ?> settings = (Map<?, ?>) document.values().get("settings");
+        assertEquals(false, settings.get("debug"));
+        assertTrue(Files.readString(file).contains("debug"));
+    }
 }

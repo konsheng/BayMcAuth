@@ -10,6 +10,7 @@ import com.baymc.auth.common.config.AuthConfig;
 import com.baymc.auth.common.config.YamlDocument;
 import com.baymc.auth.common.model.AuditEntry;
 import com.baymc.auth.common.text.Messages;
+import com.baymc.auth.common.util.ExceptionSummary;
 import com.baymc.auth.common.util.ResourceUtil;
 import com.baymc.auth.paper.command.BayMcAuthCommand;
 import com.baymc.auth.paper.command.PaperMessageSender;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 /*
  * Paper/Folia 插件入口
@@ -140,7 +142,13 @@ public final class BayMcAuthPaperPlugin extends JavaPlugin {
                 mySqlStorage.failures(), mySqlStorage.audits(), mySqlStorage.identityContexts());
         } catch (RuntimeException exception) {
             this.databaseAvailable = false;
-            getLogger().severe("数据库初始化失败, BayMcAuth 已进入降级状态: " + exception.getMessage());
+            if (config.settings().debug()) {
+                getLogger().log(Level.SEVERE, "数据库初始化失败, BayMcAuth 已进入降级状态", exception);
+            } else {
+                getLogger().severe("数据库初始化失败, BayMcAuth 已进入降级状态");
+                getLogger().severe("失败原因");
+                ExceptionSummary.databaseFailureLines(exception).forEach(getLogger()::severe);
+            }
             InMemoryRepositories repositories = new InMemoryRepositories();
             return new StorageParts(repositories.users(), repositories.passwordHistory(), repositories.inviteCodes(), repositories.nameLocks(),
                 repositories.failures(), repositories.audits(), repositories.identityContexts());

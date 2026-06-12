@@ -8,8 +8,32 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class AuthConfigTest {
+    @Test
+    void settingsDebugDefaultsToFalse() {
+        AuthConfig config = AuthConfig.from(YamlDocument.fromString("""
+            settings:
+              language: zh_CN
+              timezone: Asia/Shanghai
+            """), ignored -> { });
+
+        assertFalse(config.settings().debug());
+    }
+
+    @Test
+    void settingsDebugCanBeEnabled() {
+        AuthConfig config = AuthConfig.from(YamlDocument.fromString("""
+            settings:
+              language: zh_CN
+              timezone: Asia/Shanghai
+              debug: true
+            """), ignored -> { });
+
+        assertTrue(config.settings().debug());
+    }
+
     @Test
     void loginPromptReadsOnlyDeclaredIntervalKeys() {
         List<String> warnings = new ArrayList<>();

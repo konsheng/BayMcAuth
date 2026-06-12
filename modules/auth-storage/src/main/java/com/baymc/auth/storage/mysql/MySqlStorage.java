@@ -40,6 +40,7 @@ public final class MySqlStorage implements AutoCloseable {
     public MySqlStorage(AuthConfig.Database database) {
         this.prefix = sanitizePrefix(database.tablePrefix());
         HikariConfig config = new HikariConfig();
+        config.setDriverClassName("com.mysql.cj.jdbc.Driver");
         config.setJdbcUrl(database.jdbcUrl());
         config.setUsername(database.username());
         config.setPassword(database.password());

@@ -6,6 +6,9 @@ settings:
   # 时区, 用于日志, 审计和时间显示
   timezone: Asia/Shanghai
 
+  # 调试模式, 开启后数据库初始化失败会在控制台打印完整堆栈
+  debug: false
+
 # 数据库设置
 database:
   # 数据库类型, 当前固定为 mysql

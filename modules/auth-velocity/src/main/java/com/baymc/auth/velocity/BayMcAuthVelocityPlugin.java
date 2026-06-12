@@ -16,6 +16,7 @@ import com.baymc.auth.common.model.AuditResult;
 import com.baymc.auth.common.model.IdentityContext;
 import com.baymc.auth.common.model.IdentityDecision;
 import com.baymc.auth.common.text.Messages;
+import com.baymc.auth.common.util.ExceptionSummary;
 import com.baymc.auth.common.util.NameUtil;
 import com.baymc.auth.common.util.ResourceUtil;
 import com.baymc.auth.storage.cache.InMemoryRepositories;
@@ -81,7 +82,6 @@ public final class BayMcAuthVelocityPlugin {
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
         reloadInternal();
-        proxyServer.getEventManager().register(this, this);
         registerCommand();
         logger.info("BayMcAuth Velocity 端已启动");
     }
@@ -154,7 +154,13 @@ public final class BayMcAuthVelocityPlugin {
             this.identityContexts = mySqlStorage.identityContexts();
             this.audits = createAuditLogger(mySqlStorage.audits());
         } catch (RuntimeException exception) {
-            logger.error("Velocity 数据库初始化失败, 新玩家将被拒绝", exception);
+            if (config.settings().debug()) {
+                logger.error("Velocity 数据库初始化失败, 新玩家将被拒绝连接", exception);
+            } else {
+                logger.error("Velocity 数据库初始化失败, 新玩家将被拒绝连接");
+                logger.error("失败原因");
+                ExceptionSummary.databaseFailureLines(exception).forEach(logger::error);
+            }
             this.databaseAvailable = false;
             InMemoryRepositories repositories = new InMemoryRepositories();
             this.nameLocks = repositories.nameLocks();
