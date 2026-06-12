@@ -6,3 +6,10 @@ dependencies {
     compileOnly("net.kyori:adventure-api:5.1.1")
     compileOnly("net.kyori:adventure-text-minimessage:5.1.1")
 }
+
+tasks.processResources {
+    inputs.property("pluginVersion", project.version.toString())
+    filesMatching("plugin.yml") {
+        expand("version" to project.version)
+    }
+}

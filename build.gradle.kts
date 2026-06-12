@@ -3,8 +3,13 @@ plugins {
     id("com.gradleup.shadow") version "9.4.2" apply false
 }
 
+val basePluginVersion = "1.0.0-SNAPSHOT"
+val effectivePluginVersion = providers.gradleProperty("artifactVersionOverride").orElse(basePluginVersion).get()
+
 group = "com.baymc.auth"
-version = "1.0.0-SNAPSHOT"
+version = effectivePluginVersion
+
+extra["basePluginVersion"] = basePluginVersion
 
 subprojects {
     group = rootProject.group
@@ -38,4 +43,12 @@ tasks.register("shadowJar") {
     group = "build"
     description = "Builds the final BayMcAuth plugin jar."
     dependsOn(":modules:auth-plugin:shadowJar")
+}
+
+tasks.register("printVersion") {
+    group = "help"
+    description = "Prints the base BayMcAuth plugin version."
+    doLast {
+        println(basePluginVersion)
+    }
 }
