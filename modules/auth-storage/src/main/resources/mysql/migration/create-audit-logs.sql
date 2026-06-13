@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS {audit_logs} (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  event_type VARCHAR(64) NOT NULL,
+  player_name VARCHAR(32) NULL,
+  player_name_lower VARCHAR(32) NULL,
+  uuid CHAR(36) NULL,
+  account_type VARCHAR(32) NULL,
+  ip VARCHAR(45) NULL,
+  server_name VARCHAR(64) NULL,
+  result VARCHAR(32) NULL,
+  reason VARCHAR(255) NULL,
+  message TEXT NOT NULL,
+  created_at DATETIME(3) NOT NULL,
+  PRIMARY KEY (id),
+  KEY idx_event_type (event_type),
+  KEY idx_player_name_lower (player_name_lower),
+  KEY idx_uuid (uuid),
+  KEY idx_ip (ip),
+  KEY idx_account_type (account_type),
+  KEY idx_result (result),
+  KEY idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4

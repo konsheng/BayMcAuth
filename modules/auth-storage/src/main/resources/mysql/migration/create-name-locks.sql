@@ -1,0 +1,23 @@
+CREATE TABLE IF NOT EXISTS {name_locks} (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  name_lower VARCHAR(32) NOT NULL,
+  player_name VARCHAR(32) NOT NULL,
+  owner_uuid CHAR(36) NULL,
+  account_type VARCHAR(32) NOT NULL DEFAULT 'OFFLINE_PLAIN',
+  lock_type VARCHAR(32) NOT NULL DEFAULT 'ADMIN_RESERVED',
+  active TINYINT(1) NOT NULL DEFAULT 1,
+  created_by VARCHAR(32) NULL,
+  created_by_uuid CHAR(36) NULL,
+  created_at DATETIME(3) NOT NULL,
+  revoked TINYINT(1) NOT NULL DEFAULT 0,
+  revoked_by VARCHAR(32) NULL,
+  revoked_by_uuid CHAR(36) NULL,
+  revoked_at DATETIME(3) NULL,
+  note VARCHAR(255) NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_name_lower (name_lower),
+  KEY idx_owner_uuid (owner_uuid),
+  KEY idx_active (active),
+  KEY idx_revoked (revoked),
+  KEY idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4

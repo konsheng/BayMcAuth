@@ -1,0 +1,1 @@
+INSERT INTO {table} (context_id, player_name_lower, uuid, account_type, ip, server_name, issued_at, expires_at, consumed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE consumed_at = VALUES(consumed_at)

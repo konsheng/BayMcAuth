@@ -1,0 +1,1 @@
+ALTER TABLE {table} ADD COLUMN consumed_at DATETIME(3) NULL

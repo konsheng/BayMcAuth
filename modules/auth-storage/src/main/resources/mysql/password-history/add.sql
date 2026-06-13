@@ -1,0 +1,1 @@
+INSERT INTO {table} (user_uuid, player_name, player_name_lower, account_type, password_plain, change_type, changed_by, changed_by_uuid, ip, server_name, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)

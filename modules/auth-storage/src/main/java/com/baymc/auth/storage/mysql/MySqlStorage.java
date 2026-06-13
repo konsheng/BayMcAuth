@@ -17,6 +17,7 @@ import java.sql.Statement;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -107,183 +108,13 @@ public final class MySqlStorage implements AutoCloseable {
 
     private void migrate() {
         try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
-            statement.execute("""
-                CREATE TABLE IF NOT EXISTS %s (
-                  id BIGINT NOT NULL AUTO_INCREMENT,
-                  uuid CHAR(36) NOT NULL,
-                  player_name VARCHAR(32) NOT NULL,
-                  player_name_lower VARCHAR(32) NOT NULL,
-                  account_type VARCHAR(32) NOT NULL,
-                  password_enabled TINYINT(1) NOT NULL DEFAULT 1,
-                  password_plain VARCHAR(255) NULL,
-                  password_cipher VARCHAR(255) NULL,
-                  totp_enabled TINYINT(1) NOT NULL DEFAULT 0,
-                  totp_confirmed TINYINT(1) NOT NULL DEFAULT 0,
-                  totp_secret VARCHAR(255) NULL,
-                  totp_pending_secret VARCHAR(255) NULL,
-                  register_invite_code VARCHAR(128) NULL,
-                  register_invite_id BIGINT NULL,
-                  locked TINYINT(1) NOT NULL DEFAULT 0,
-                  locked_reason VARCHAR(255) NULL,
-                  locked_by VARCHAR(32) NULL,
-                  locked_by_uuid CHAR(36) NULL,
-                  locked_at DATETIME(3) NULL,
-                  register_ip VARCHAR(45) NULL,
-                  last_login_ip VARCHAR(45) NULL,
-                  last_login_at DATETIME(3) NULL,
-                  last_server_name VARCHAR(64) NULL,
-                  created_at DATETIME(3) NOT NULL,
-                  updated_at DATETIME(3) NOT NULL,
-                  PRIMARY KEY (id),
-                  UNIQUE KEY uk_uuid (uuid),
-                  KEY idx_player_name_lower (player_name_lower),
-                  KEY idx_account_type (account_type),
-                  KEY idx_register_invite_code (register_invite_code),
-                  KEY idx_locked (locked),
-                  KEY idx_last_login_at (last_login_at)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-                """.formatted(table("users")));
-            statement.execute("""
-                CREATE TABLE IF NOT EXISTS %s (
-                  id BIGINT NOT NULL AUTO_INCREMENT,
-                  user_uuid CHAR(36) NOT NULL,
-                  player_name VARCHAR(32) NOT NULL,
-                  player_name_lower VARCHAR(32) NOT NULL,
-                  account_type VARCHAR(32) NOT NULL,
-                  password_plain VARCHAR(255) NOT NULL,
-                  change_type VARCHAR(32) NOT NULL,
-                  changed_by VARCHAR(32) NULL,
-                  changed_by_uuid CHAR(36) NULL,
-                  ip VARCHAR(45) NULL,
-                  server_name VARCHAR(64) NULL,
-                  created_at DATETIME(3) NOT NULL,
-                  PRIMARY KEY (id),
-                  KEY idx_user_uuid (user_uuid),
-                  KEY idx_player_name_lower (player_name_lower),
-                  KEY idx_change_type (change_type),
-                  KEY idx_created_at (created_at)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-                """.formatted(table("password_history")));
-            statement.execute("""
-                CREATE TABLE IF NOT EXISTS %s (
-                  id BIGINT NOT NULL AUTO_INCREMENT,
-                  code VARCHAR(128) NOT NULL,
-                  code_key VARCHAR(128) NOT NULL,
-                  batch_id VARCHAR(64) NULL,
-                  used TINYINT(1) NOT NULL DEFAULT 0,
-                  used_by_uuid CHAR(36) NULL,
-                  used_by_name VARCHAR(32) NULL,
-                  used_by_name_lower VARCHAR(32) NULL,
-                  used_account_type VARCHAR(32) NULL,
-                  used_ip VARCHAR(45) NULL,
-                  used_at DATETIME(3) NULL,
-                  created_by VARCHAR(32) NULL,
-                  created_by_uuid CHAR(36) NULL,
-                  created_at DATETIME(3) NOT NULL,
-                  expires_at DATETIME(3) NOT NULL,
-                  revoked TINYINT(1) NOT NULL DEFAULT 0,
-                  revoked_by VARCHAR(32) NULL,
-                  revoked_by_uuid CHAR(36) NULL,
-                  revoked_at DATETIME(3) NULL,
-                  note VARCHAR(255) NULL,
-                  PRIMARY KEY (id),
-                  UNIQUE KEY uk_code_key (code_key),
-                  KEY idx_used (used),
-                  KEY idx_revoked (revoked),
-                  KEY idx_expires_at (expires_at),
-                  KEY idx_used_by_uuid (used_by_uuid),
-                  KEY idx_batch_id (batch_id),
-                  KEY idx_created_at (created_at)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-                """.formatted(table("invite_codes")));
-            statement.execute("""
-                CREATE TABLE IF NOT EXISTS %s (
-                  id BIGINT NOT NULL AUTO_INCREMENT,
-                  name_lower VARCHAR(32) NOT NULL,
-                  player_name VARCHAR(32) NOT NULL,
-                  owner_uuid CHAR(36) NULL,
-                  account_type VARCHAR(32) NOT NULL DEFAULT 'OFFLINE_PLAIN',
-                  lock_type VARCHAR(32) NOT NULL DEFAULT 'ADMIN_RESERVED',
-                  active TINYINT(1) NOT NULL DEFAULT 1,
-                  created_by VARCHAR(32) NULL,
-                  created_by_uuid CHAR(36) NULL,
-                  created_at DATETIME(3) NOT NULL,
-                  revoked TINYINT(1) NOT NULL DEFAULT 0,
-                  revoked_by VARCHAR(32) NULL,
-                  revoked_by_uuid CHAR(36) NULL,
-                  revoked_at DATETIME(3) NULL,
-                  note VARCHAR(255) NULL,
-                  PRIMARY KEY (id),
-                  UNIQUE KEY uk_name_lower (name_lower),
-                  KEY idx_owner_uuid (owner_uuid),
-                  KEY idx_active (active),
-                  KEY idx_revoked (revoked),
-                  KEY idx_created_at (created_at)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-                """.formatted(table("name_locks")));
-            statement.execute("""
-                CREATE TABLE IF NOT EXISTS %s (
-                  id BIGINT NOT NULL AUTO_INCREMENT,
-                  user_uuid CHAR(36) NULL,
-                  player_name VARCHAR(32) NULL,
-                  player_name_lower VARCHAR(32) NULL,
-                  ip VARCHAR(45) NULL,
-                  account_type VARCHAR(32) NULL,
-                  action_type VARCHAR(32) NOT NULL,
-                  reason VARCHAR(255) NULL,
-                  server_name VARCHAR(64) NULL,
-                  failed_at DATETIME(3) NOT NULL,
-                  PRIMARY KEY (id),
-                  KEY idx_user_uuid (user_uuid),
-                  KEY idx_player_name_lower (player_name_lower),
-                  KEY idx_ip (ip),
-                  KEY idx_action_type (action_type),
-                  KEY idx_failed_at (failed_at)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-                """.formatted(table("failures")));
-            statement.execute("""
-                CREATE TABLE IF NOT EXISTS %s (
-                  id BIGINT NOT NULL AUTO_INCREMENT,
-                  event_type VARCHAR(64) NOT NULL,
-                  player_name VARCHAR(32) NULL,
-                  player_name_lower VARCHAR(32) NULL,
-                  uuid CHAR(36) NULL,
-                  account_type VARCHAR(32) NULL,
-                  ip VARCHAR(45) NULL,
-                  server_name VARCHAR(64) NULL,
-                  result VARCHAR(32) NULL,
-                  reason VARCHAR(255) NULL,
-                  message TEXT NOT NULL,
-                  created_at DATETIME(3) NOT NULL,
-                  PRIMARY KEY (id),
-                  KEY idx_event_type (event_type),
-                  KEY idx_player_name_lower (player_name_lower),
-                  KEY idx_uuid (uuid),
-                  KEY idx_ip (ip),
-                  KEY idx_account_type (account_type),
-                  KEY idx_result (result),
-                  KEY idx_created_at (created_at)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-                """.formatted(table("audit_logs")));
-            statement.execute("""
-                CREATE TABLE IF NOT EXISTS %s (
-                  id BIGINT NOT NULL AUTO_INCREMENT,
-                  context_id VARCHAR(64) NOT NULL,
-                  player_name_lower VARCHAR(32) NOT NULL,
-                  uuid CHAR(36) NULL,
-                  account_type VARCHAR(32) NOT NULL,
-                  ip VARCHAR(45) NULL,
-                  server_name VARCHAR(64) NULL,
-                  issued_at DATETIME(3) NOT NULL,
-                  expires_at DATETIME(3) NOT NULL,
-                  consumed_at DATETIME(3) NULL,
-                  PRIMARY KEY (id),
-                  UNIQUE KEY uk_context_id (context_id),
-                  KEY idx_player_ip (player_name_lower, ip),
-                  KEY idx_expires_at (expires_at),
-                  KEY idx_consumed_at (consumed_at)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-                """.formatted(table("identity_contexts")));
+            statement.execute(sqlTemplate("migration/create-users", Map.of("users", table("users"))));
+            statement.execute(sqlTemplate("migration/create-password-history", Map.of("password_history", table("password_history"))));
+            statement.execute(sqlTemplate("migration/create-invite-codes", Map.of("invite_codes", table("invite_codes"))));
+            statement.execute(sqlTemplate("migration/create-name-locks", Map.of("name_locks", table("name_locks"))));
+            statement.execute(sqlTemplate("migration/create-failures", Map.of("failures", table("failures"))));
+            statement.execute(sqlTemplate("migration/create-audit-logs", Map.of("audit_logs", table("audit_logs"))));
+            statement.execute(sqlTemplate("migration/create-identity-contexts", Map.of("identity_contexts", table("identity_contexts"))));
             ensureUserColumns(connection);
         } catch (SQLException exception) {
             throw new IllegalStateException("MySQL 初始化失败", exception);
@@ -291,27 +122,36 @@ public final class MySqlStorage implements AutoCloseable {
     }
 
     private void ensureUserColumns(Connection connection) throws SQLException {
-        ensureColumn(connection, table("users"), "totp_pending_secret", "VARCHAR(255) NULL");
-        ensureColumn(connection, table("users"), "last_server_name", "VARCHAR(64) NULL");
-        ensureColumn(connection, table("identity_contexts"), "consumed_at", "DATETIME(3) NULL");
+        ensureColumn(connection, table("users"), "totp_pending_secret", "migration/add-users-totp-pending-secret");
+        ensureColumn(connection, table("users"), "last_server_name", "migration/add-users-last-server-name");
+        ensureColumn(connection, table("identity_contexts"), "consumed_at", "migration/add-identity-contexts-consumed-at");
     }
 
-    private void ensureColumn(Connection connection, String table, String column, String definition) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement("""
-            SELECT COUNT(*) FROM information_schema.COLUMNS
-            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?
-            """)) {
+    private void ensureColumn(Connection connection, String table, String column, String alterTemplate) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(sqlTemplate("migration/column-exists"))) {
             statement.setString(1, table);
             statement.setString(2, column);
             try (ResultSet resultSet = statement.executeQuery()) {
                 resultSet.next();
                 if (resultSet.getInt(1) == 0) {
                     try (Statement alter = connection.createStatement()) {
-                        alter.execute("ALTER TABLE " + table + " ADD COLUMN " + column + " " + definition);
+                        alter.execute(sqlTemplate(alterTemplate, table));
                     }
                 }
             }
         }
+    }
+
+    private static String sqlTemplate(String name) {
+        return SqlTemplates.render(name, Map.of());
+    }
+
+    private static String sqlTemplate(String name, String table) {
+        return SqlTemplates.render(name, Map.of("table", table));
+    }
+
+    private static String sqlTemplate(String name, Map<String, String> placeholders) {
+        return SqlTemplates.render(name, placeholders);
     }
 
     static UUID uuid(String value) {
@@ -346,7 +186,7 @@ public final class MySqlStorage implements AutoCloseable {
         @Override
         public Optional<UserRecord> findByUuid(UUID uuid) {
             try (Connection connection = dataSource.getConnection();
-                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE uuid = ?")) {
+                 PreparedStatement statement = connection.prepareStatement(sqlTemplate("user/find-by-uuid", table))) {
                 statement.setString(1, uuid.toString());
                 try (ResultSet resultSet = statement.executeQuery()) {
                     return resultSet.next() ? Optional.of(mapUser(resultSet)) : Optional.empty();
@@ -359,7 +199,7 @@ public final class MySqlStorage implements AutoCloseable {
         @Override
         public List<UserRecord> findByName(String playerName) {
             try (Connection connection = dataSource.getConnection();
-                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE player_name_lower = ?")) {
+                 PreparedStatement statement = connection.prepareStatement(sqlTemplate("user/find-by-name", table))) {
                 statement.setString(1, NameUtil.lower(playerName));
                 try (ResultSet resultSet = statement.executeQuery()) {
                     List<UserRecord> result = new ArrayList<>();
@@ -376,7 +216,7 @@ public final class MySqlStorage implements AutoCloseable {
         @Override
         public Optional<UserRecord> findByNameAndType(String playerName, AccountType accountType) {
             try (Connection connection = dataSource.getConnection();
-                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE player_name_lower = ? AND account_type = ?")) {
+                 PreparedStatement statement = connection.prepareStatement(sqlTemplate("user/find-by-name-and-type", table))) {
                 statement.setString(1, NameUtil.lower(playerName));
                 statement.setString(2, accountType.name());
                 try (ResultSet resultSet = statement.executeQuery()) {
@@ -389,21 +229,7 @@ public final class MySqlStorage implements AutoCloseable {
 
         @Override
         public UserRecord save(UserRecord user) {
-            String sql = """
-                INSERT INTO %s (uuid, player_name, player_name_lower, account_type, password_enabled, password_plain, password_cipher,
-                totp_enabled, totp_confirmed, totp_secret, totp_pending_secret, register_invite_code, register_invite_id, locked,
-                locked_reason, locked_by, locked_by_uuid, locked_at, register_ip, last_login_ip, last_login_at, last_server_name,
-                created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE player_name = VALUES(player_name), player_name_lower = VALUES(player_name_lower),
-                account_type = VALUES(account_type), password_enabled = VALUES(password_enabled), password_plain = VALUES(password_plain),
-                password_cipher = VALUES(password_cipher), totp_enabled = VALUES(totp_enabled), totp_confirmed = VALUES(totp_confirmed),
-                totp_secret = VALUES(totp_secret), totp_pending_secret = VALUES(totp_pending_secret), register_invite_code = VALUES(register_invite_code),
-                register_invite_id = VALUES(register_invite_id), locked = VALUES(locked), locked_reason = VALUES(locked_reason),
-                locked_by = VALUES(locked_by), locked_by_uuid = VALUES(locked_by_uuid), locked_at = VALUES(locked_at),
-                register_ip = VALUES(register_ip), last_login_ip = VALUES(last_login_ip), last_login_at = VALUES(last_login_at),
-                last_server_name = VALUES(last_server_name), updated_at = VALUES(updated_at)
-                """.formatted(table);
+            String sql = sqlTemplate("user/save", table);
             try (Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
                 bindUser(statement, user);
                 statement.executeUpdate();
@@ -484,7 +310,7 @@ public final class MySqlStorage implements AutoCloseable {
         @Override
         public Optional<InviteCode> findByCodeKey(String codeKey) {
             try (Connection connection = dataSource.getConnection();
-                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE code_key = ?")) {
+                 PreparedStatement statement = connection.prepareStatement(sqlTemplate("invite-code/find-by-code-key", table))) {
                 statement.setString(1, InviteCodeGenerator.key(codeKey));
                 try (ResultSet resultSet = statement.executeQuery()) {
                     return resultSet.next() ? Optional.of(mapInvite(resultSet)) : Optional.empty();
@@ -496,15 +322,7 @@ public final class MySqlStorage implements AutoCloseable {
 
         @Override
         public InviteCode save(InviteCode inviteCode) {
-            String sql = """
-                INSERT INTO %s (code, code_key, batch_id, used, used_by_uuid, used_by_name, used_by_name_lower, used_account_type,
-                used_ip, used_at, created_by, created_by_uuid, created_at, expires_at, revoked, revoked_by, revoked_by_uuid, revoked_at, note)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE used = VALUES(used), used_by_uuid = VALUES(used_by_uuid), used_by_name = VALUES(used_by_name),
-                used_by_name_lower = VALUES(used_by_name_lower), used_account_type = VALUES(used_account_type), used_ip = VALUES(used_ip),
-                used_at = VALUES(used_at), revoked = VALUES(revoked), revoked_by = VALUES(revoked_by), revoked_by_uuid = VALUES(revoked_by_uuid),
-                revoked_at = VALUES(revoked_at), note = VALUES(note)
-                """.formatted(table);
+            String sql = sqlTemplate("invite-code/save", table);
             try (Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
                 int index = 1;
                 statement.setString(index++, inviteCode.code());
@@ -536,7 +354,7 @@ public final class MySqlStorage implements AutoCloseable {
         @Override
         public List<InviteCode> list(int limit) {
             try (Connection connection = dataSource.getConnection();
-                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + table + " ORDER BY created_at DESC LIMIT ?")) {
+                 PreparedStatement statement = connection.prepareStatement(sqlTemplate("invite-code/list", table))) {
                 statement.setInt(1, limit);
                 try (ResultSet resultSet = statement.executeQuery()) {
                     List<InviteCode> result = new ArrayList<>();
@@ -578,7 +396,7 @@ public final class MySqlStorage implements AutoCloseable {
         @Override
         public Optional<NameLock> findAnyByName(String playerName) {
             try (Connection connection = dataSource.getConnection();
-                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE name_lower = ?")) {
+                 PreparedStatement statement = connection.prepareStatement(sqlTemplate("name-lock/find-any-by-name", table))) {
                 statement.setString(1, NameUtil.lower(playerName));
                 try (ResultSet resultSet = statement.executeQuery()) {
                     return resultSet.next() ? Optional.of(mapLock(resultSet)) : Optional.empty();
@@ -590,14 +408,7 @@ public final class MySqlStorage implements AutoCloseable {
 
         @Override
         public NameLock save(NameLock lock) {
-            String sql = """
-                INSERT INTO %s (name_lower, player_name, owner_uuid, account_type, lock_type, active, created_by, created_by_uuid,
-                created_at, revoked, revoked_by, revoked_by_uuid, revoked_at, note)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE player_name = VALUES(player_name), owner_uuid = VALUES(owner_uuid), account_type = VALUES(account_type),
-                lock_type = VALUES(lock_type), active = VALUES(active), revoked = VALUES(revoked), revoked_by = VALUES(revoked_by),
-                revoked_by_uuid = VALUES(revoked_by_uuid), revoked_at = VALUES(revoked_at), note = VALUES(note)
-                """.formatted(table);
+            String sql = sqlTemplate("name-lock/save", table);
             try (Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
                 int index = 1;
                 statement.setString(index++, lock.nameLower());
@@ -624,7 +435,7 @@ public final class MySqlStorage implements AutoCloseable {
         @Override
         public List<NameLock> listActive(int limit) {
             try (Connection connection = dataSource.getConnection();
-                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE active = 1 AND revoked = 0 ORDER BY created_at DESC LIMIT ?")) {
+                 PreparedStatement statement = connection.prepareStatement(sqlTemplate("name-lock/list-active", table))) {
                 statement.setInt(1, limit);
                 try (ResultSet resultSet = statement.executeQuery()) {
                     List<NameLock> result = new ArrayList<>();
@@ -657,7 +468,7 @@ public final class MySqlStorage implements AutoCloseable {
 
         @Override
         public PasswordHistoryEntry add(PasswordHistoryEntry entry) {
-            String sql = "INSERT INTO " + table + " (user_uuid, player_name, player_name_lower, account_type, password_plain, change_type, changed_by, changed_by_uuid, ip, server_name, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = sqlTemplate("password-history/add", table);
             try (Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 int index = 1;
                 bindUuid(statement, index++, entry.userUuid());
@@ -685,7 +496,7 @@ public final class MySqlStorage implements AutoCloseable {
         @Override
         public List<PasswordHistoryEntry> findByUserUuid(UUID userUuid, int limit) {
             try (Connection connection = dataSource.getConnection();
-                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE user_uuid = ? ORDER BY created_at DESC LIMIT ?")) {
+                 PreparedStatement statement = connection.prepareStatement(sqlTemplate("password-history/find-by-user-uuid", table))) {
                 statement.setString(1, userUuid.toString());
                 statement.setInt(2, limit);
                 try (ResultSet rs = statement.executeQuery()) {
@@ -715,7 +526,7 @@ public final class MySqlStorage implements AutoCloseable {
 
         @Override
         public FailureRecord add(FailureRecord failure) {
-            String sql = "INSERT INTO " + table + " (user_uuid, player_name, player_name_lower, ip, account_type, action_type, reason, server_name, failed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = sqlTemplate("failure/add", table);
             try (Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 int index = 1;
                 bindUuid(statement, index++, failure.userUuid());
@@ -741,7 +552,7 @@ public final class MySqlStorage implements AutoCloseable {
         @Override
         public List<FailureRecord> findSince(UUID userUuid, String ip, FailureActionType actionType, Instant since) {
             try (Connection connection = dataSource.getConnection();
-                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE action_type = ? AND failed_at > ? AND (user_uuid = ? OR ip = ?)")) {
+                 PreparedStatement statement = connection.prepareStatement(sqlTemplate("failure/find-since", table))) {
                 statement.setString(1, actionType.name());
                 statement.setTimestamp(2, SqlTime.timestamp(since));
                 statement.setString(3, uuid(userUuid));
@@ -774,7 +585,7 @@ public final class MySqlStorage implements AutoCloseable {
 
         @Override
         public AuditEntry add(AuditEntry entry) {
-            String sql = "INSERT INTO " + table + " (event_type, player_name, player_name_lower, uuid, account_type, ip, server_name, result, reason, message, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = sqlTemplate("audit/add", table);
             try (Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 int index = 1;
                 statement.setString(index++, entry.eventType().name());
@@ -811,7 +622,7 @@ public final class MySqlStorage implements AutoCloseable {
 
         @Override
         public IdentityContext save(IdentityContext context) {
-            String sql = "INSERT INTO " + table + " (context_id, player_name_lower, uuid, account_type, ip, server_name, issued_at, expires_at, consumed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE consumed_at = VALUES(consumed_at)";
+            String sql = sqlTemplate("identity-context/save", table);
             try (Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, context.contextId());
                 statement.setString(2, context.playerNameLower());
@@ -832,7 +643,7 @@ public final class MySqlStorage implements AutoCloseable {
         @Override
         public Optional<IdentityContext> findLatest(String playerName, String ip) {
             try (Connection connection = dataSource.getConnection();
-                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE player_name_lower = ? AND (ip = ? OR ? IS NULL) AND consumed_at IS NULL AND expires_at > ? ORDER BY issued_at DESC LIMIT 1")) {
+                 PreparedStatement statement = connection.prepareStatement(sqlTemplate("identity-context/find-latest", table))) {
                 statement.setString(1, NameUtil.lower(playerName));
                 statement.setString(2, ip);
                 statement.setString(3, ip);
@@ -848,7 +659,7 @@ public final class MySqlStorage implements AutoCloseable {
         @Override
         public void consume(String contextId) {
             try (Connection connection = dataSource.getConnection();
-                 PreparedStatement statement = connection.prepareStatement("UPDATE " + table + " SET consumed_at = ? WHERE context_id = ?")) {
+                 PreparedStatement statement = connection.prepareStatement(sqlTemplate("identity-context/consume", table))) {
                 statement.setTimestamp(1, SqlTime.timestamp(Instant.now()));
                 statement.setString(2, contextId);
                 statement.executeUpdate();
@@ -860,7 +671,7 @@ public final class MySqlStorage implements AutoCloseable {
         @Override
         public void purgeExpired() {
             try (Connection connection = dataSource.getConnection();
-                 PreparedStatement statement = connection.prepareStatement("DELETE FROM " + table + " WHERE expires_at < ?")) {
+                 PreparedStatement statement = connection.prepareStatement(sqlTemplate("identity-context/purge-expired", table))) {
                 statement.setTimestamp(1, SqlTime.timestamp(Instant.now()));
                 statement.executeUpdate();
             } catch (SQLException exception) {
