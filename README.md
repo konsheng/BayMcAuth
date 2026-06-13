@@ -268,92 +268,80 @@ invite:
 
 ## 🔐 权限
 
-- **`baymcauth.user`**<br>
-  默认：`true`<br>
-  普通玩家父权限, 默认授予所有玩家, 包含帮助、状态、注册、登录、登出、重置密码、确认、密码管理和 TOTP 命令
-- **`baymcauth.admin`**<br>
-  默认：`op`<br>
-  管理员父权限, 包含 `baymcauth.user`、管理命令和 Velocity 命令
 - **`baymcauth.help`**<br>
-  默认：`false`<br>
+  默认：`true`<br>
   显示插件帮助
 - **`baymcauth.status`**<br>
-  默认：`false`<br>
+  默认：`true`<br>
   查看 Paper/Folia 端状态
 - **`baymcauth.register`**<br>
-  默认：`false`<br>
+  默认：`true`<br>
   注册当前账号
 - **`baymcauth.login`**<br>
-  默认：`false`<br>
+  默认：`true`<br>
   登录当前账号
 - **`baymcauth.logout`**<br>
-  默认：`false`<br>
+  默认：`true`<br>
   登出当前账号
 - **`baymcauth.resetpassword`**<br>
-  默认：`false`<br>
+  默认：`true`<br>
   通过 TOTP 重置当前账号密码
 - **`baymcauth.confirm`**<br>
-  默认：`false`<br>
+  默认：`true`<br>
   确认当前执行者名下的高风险操作
 - **`baymcauth.password.enable`**<br>
-  默认：`false`<br>
+  默认：`true`<br>
   启用密码登录
 - **`baymcauth.password.disable`**<br>
-  默认：`false`<br>
+  默认：`true`<br>
   关闭密码登录
 - **`baymcauth.password.change`**<br>
-  默认：`false`<br>
+  默认：`true`<br>
   修改密码
 - **`baymcauth.2fa.setup`**<br>
-  默认：`false`<br>
+  默认：`true`<br>
   创建 TOTP pending secret
 - **`baymcauth.2fa.confirm`**<br>
-  默认：`false`<br>
+  默认：`true`<br>
   确认并启用 TOTP
 - **`baymcauth.2fa.code`**<br>
-  默认：`false`<br>
+  默认：`true`<br>
   提交 TOTP 验证码
 - **`baymcauth.2fa.disable`**<br>
-  默认：`false`<br>
+  默认：`true`<br>
   关闭 TOTP
 - **`baymcauth.2fa.status`**<br>
-  默认：`false`<br>
+  默认：`true`<br>
   查看当前账号 TOTP 状态
 - **`baymcauth.reload`**<br>
   默认：`op`<br>
   重载 Paper/Folia 端配置和语言文件
-- **`baymcauth.invite`**<br>
-  默认：`op`<br>
-  邀请码管理父权限
 - **`baymcauth.invite.create`**<br>
-  默认：`false`<br>
+  默认：`op`<br>
   创建邀请码
 - **`baymcauth.invite.list`**<br>
-  默认：`false`<br>
+  默认：`op`<br>
   列出邀请码
 - **`baymcauth.invite.export`**<br>
-  默认：`false`<br>
+  默认：`op`<br>
   导出邀请码
 - **`baymcauth.invite.info`**<br>
-  默认：`false`<br>
+  默认：`op`<br>
   查看邀请码详情
 - **`baymcauth.invite.revoke`**<br>
-  默认：`false`<br>
-  撤销邀请码
-- **`baymcauth.reserve`**<br>
   默认：`op`<br>
-  预留名管理父权限
+  撤销邀请码
 - **`baymcauth.reserve.offline`**<br>
-  默认：`false`<br>
+  默认：`op`<br>
   预留无前后缀离线名
 - **`baymcauth.reserve.info`**<br>
-  默认：`false`<br>
+  默认：`op`<br>
   查看预留名详情
 - **`baymcauth.reserve.list`**<br>
-  默认：`false`<br>
+  默认：`op`<br>
   列出预留名
 - **`baymcauth.reserve.revoke`**<br>
-  默认：`false`<br>
+  默认：`op`<br>
   撤销预留名
 - **`baymcauth.user.info`**<br>
   默认：`op`<br>
@@ -370,23 +358,20 @@ invite:
 - **`baymcauth.reset2fa`**<br>
   默认：`op`<br>
   重置玩家 TOTP
-- **`baymcauth.velocity`**<br>
-  默认：`op`<br>
-  Velocity 管理父权限
 - **`baymcauth.velocity.help`**<br>
-  默认：`false`<br>
+  默认：`op`<br>
   显示 Velocity 端命令帮助
 - **`baymcauth.velocity.status`**<br>
-  默认：`false`<br>
+  默认：`op`<br>
   查看 Velocity 端数据库状态
 - **`baymcauth.velocity.reload`**<br>
-  默认：`false`<br>
+  默认：`op`<br>
   重载 Velocity 端配置和语言文件
 - **`baymcauth.velocity.affix.status`**<br>
-  默认：`false`<br>
+  默认：`op`<br>
   查看 Velocity 端离线名前后缀模式
 - **`baymcauth.velocity.affix.reload`**<br>
-  默认：`false`<br>
+  默认：`op`<br>
   显示 Velocity 端离线名前后缀模式
 
 ## 🛡️ 数据安全

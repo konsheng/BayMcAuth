@@ -28,6 +28,7 @@ final class BayMcAuthPaperPluginTest {
         String text = Files.readString(source);
 
         assertFalse(text.contains("canUseUserCommand"));
+        assertFalse(text.contains("PERMISSION_ADMIN"));
         assertFalse(text.contains("case \"help\" -> user(sender"));
         assertTrue(text.contains("case \"help\" -> permitted(sender, BayMcAuthConstants.PERMISSION_HELP"));
         assertTrue(text.contains("case \"status\" -> permitted(sender, BayMcAuthConstants.PERMISSION_STATUS"));
@@ -63,6 +64,23 @@ final class BayMcAuthPaperPluginTest {
     }
 
     @Test
+    void commonConstantsDoNotDefinePermissionPackages() throws Exception {
+        Path source = findProjectRoot().resolve("modules/auth-common/src/main/java/com/baymc/auth/common/BayMcAuthConstants.java");
+        String text = Files.readString(source);
+
+        assertFalse(text.contains("PERMISSION_" + "USER = \"baymcauth." + "user\""));
+        assertFalse(text.contains("PERMISSION_" + "ADMIN = \"baymcauth." + "admin\""));
+        assertFalse(text.contains("PERMISSION_" + "INVITE = \"baymcauth." + "invite\""));
+        assertFalse(text.contains("PERMISSION_" + "RESERVE = \"baymcauth." + "reserve\""));
+        assertFalse(text.contains("PERMISSION_" + "VELOCITY = \"baymcauth." + "velocity\""));
+        assertTrue(text.contains("PERMISSION_USER_INFO"));
+        assertTrue(text.contains("PERMISSION_USER_HISTORY"));
+        assertTrue(text.contains("PERMISSION_INVITE_CREATE"));
+        assertTrue(text.contains("PERMISSION_RESERVE_OFFLINE"));
+        assertTrue(text.contains("PERMISSION_VELOCITY_HELP"));
+    }
+
+    @Test
     void pluginYmlAssignsDetailedPermissionsToDirectCommands() throws Exception {
         Path source = findProjectRoot().resolve("modules/auth-paper/src/main/resources/plugin.yml");
         String text = Files.readString(source).replace("\r\n", "\n");
@@ -72,9 +90,9 @@ final class BayMcAuthPaperPluginTest {
         assertCommandPermission(text, "logout", "baymcauth.logout");
         assertCommandPermission(text, "resetpassword", "baymcauth.resetpassword");
         assertFalse(text.contains("  baymcauth:\n")
-            && text.substring(text.indexOf("  baymcauth:\n"), text.indexOf("  register:\n")).contains("permission: \"baymcauth.user\""));
+            && text.substring(text.indexOf("  baymcauth:\n"), text.indexOf("  register:\n")).contains("permission: \"baymcauth." + "user\""));
         assertFalse(text.contains("  2fa:\n")
-            && text.substring(text.indexOf("  2fa:\n"), text.indexOf("  resetpassword:\n")).contains("permission: \"baymcauth.user\""));
+            && text.substring(text.indexOf("  2fa:\n"), text.indexOf("  resetpassword:\n")).contains("permission: \"baymcauth." + "user\""));
     }
 
     @Test
@@ -118,9 +136,13 @@ final class BayMcAuthPaperPluginTest {
 
         assertFalse(permissions.contains("- `baymcauth."));
         assertFalse(permissions.contains("`\n默认："));
-        assertTrue(permissions.contains("- **`baymcauth.user`**<br>\n  默认：`true`<br>\n  普通玩家父权限"));
-        assertTrue(permissions.contains("- **`baymcauth.register`**<br>\n  默认：`false`<br>\n  注册当前账号"));
-        assertTrue(permissions.contains("- **`baymcauth.velocity.affix.reload`**<br>\n  默认：`false`<br>\n  显示 Velocity 端离线名前后缀模式"));
+        assertFalse(permissions.contains("- **`baymcauth." + "user`**"));
+        assertFalse(permissions.contains("- **`baymcauth." + "admin`**"));
+        assertFalse(permissions.contains("- **`baymcauth." + "invite`**"));
+        assertFalse(permissions.contains("- **`baymcauth." + "reserve`**"));
+        assertFalse(permissions.contains("- **`baymcauth." + "velocity`**"));
+        assertTrue(permissions.contains("- **`baymcauth.register`**<br>\n  默认：`true`<br>\n  注册当前账号"));
+        assertTrue(permissions.contains("- **`baymcauth.velocity.affix.reload`**<br>\n  默认：`op`<br>\n  显示 Velocity 端离线名前后缀模式"));
     }
 
     @Test
@@ -128,8 +150,6 @@ final class BayMcAuthPaperPluginTest {
         Path source = findProjectRoot().resolve("modules/auth-paper/src/main/resources/plugin.yml");
         String text = Files.readString(source).replace("\r\n", "\n");
 
-        assertPermissionDescription(text, "baymcauth.user", "授予普通玩家基础认证命令权限");
-        assertPermissionDescription(text, "baymcauth.admin", "授予 BayMcAuth 管理员全部命令权限");
         assertPermissionDescription(text, "baymcauth.help", "查看 BayMcAuth 帮助");
         assertPermissionDescription(text, "baymcauth.status", "查看 Paper/Folia 端认证服务状态");
         assertPermissionDescription(text, "baymcauth.register", "注册当前账号");
@@ -146,13 +166,11 @@ final class BayMcAuthPaperPluginTest {
         assertPermissionDescription(text, "baymcauth.2fa.disable", "关闭当前账号 TOTP");
         assertPermissionDescription(text, "baymcauth.2fa.status", "查看当前账号 TOTP 状态");
         assertPermissionDescription(text, "baymcauth.reload", "重载 Paper/Folia 端配置和语言文件");
-        assertPermissionDescription(text, "baymcauth.invite", "授予邀请码管理命令集合");
         assertPermissionDescription(text, "baymcauth.invite.create", "创建邀请码");
         assertPermissionDescription(text, "baymcauth.invite.list", "列出邀请码");
         assertPermissionDescription(text, "baymcauth.invite.export", "导出邀请码列表");
         assertPermissionDescription(text, "baymcauth.invite.info", "查看邀请码详情");
         assertPermissionDescription(text, "baymcauth.invite.revoke", "撤销邀请码");
-        assertPermissionDescription(text, "baymcauth.reserve", "授予预留名管理命令集合");
         assertPermissionDescription(text, "baymcauth.reserve.offline", "预留无前后缀离线名");
         assertPermissionDescription(text, "baymcauth.reserve.info", "查看预留名详情");
         assertPermissionDescription(text, "baymcauth.reserve.list", "列出预留名");
@@ -162,7 +180,6 @@ final class BayMcAuthPaperPluginTest {
         assertPermissionDescription(text, "baymcauth.lock", "锁定用户账号");
         assertPermissionDescription(text, "baymcauth.unlock", "解锁用户账号");
         assertPermissionDescription(text, "baymcauth.reset2fa", "重置玩家 TOTP");
-        assertPermissionDescription(text, "baymcauth.velocity", "授予 Velocity 管理命令集合");
         assertPermissionDescription(text, "baymcauth.velocity.help", "查看 Velocity 端 BayMcAuth 帮助");
         assertPermissionDescription(text, "baymcauth.velocity.status", "查看 Velocity 端认证服务状态");
         assertPermissionDescription(text, "baymcauth.velocity.reload", "重载 Velocity 端配置和语言文件");
@@ -171,61 +188,25 @@ final class BayMcAuthPaperPluginTest {
     }
 
     @Test
-    void pluginYmlDefinesDetailedPermissionTree() throws Exception {
+    void pluginYmlDefinesOnlyDetailedPermissions() throws Exception {
         Path source = findProjectRoot().resolve("modules/auth-paper/src/main/resources/plugin.yml");
         String text = Files.readString(source).replace("\r\n", "\n");
 
-        assertTrue(text.contains("  baymcauth.user:\n    description: \"授予普通玩家基础认证命令权限\"\n    default: true\n    children:"));
-        String userTree = section(text, "  baymcauth.user:\n", "  baymcauth.admin:\n");
-        assertContainsAll(userTree,
-            "      baymcauth.help: true",
-            "      baymcauth.status: true",
-            "      baymcauth.register: true",
-            "      baymcauth.login: true",
-            "      baymcauth.logout: true",
-            "      baymcauth.resetpassword: true",
-            "      baymcauth.confirm: true",
-            "      baymcauth.password.enable: true",
-            "      baymcauth.password.disable: true",
-            "      baymcauth.password.change: true",
-            "      baymcauth.2fa.setup: true",
-            "      baymcauth.2fa.confirm: true",
-            "      baymcauth.2fa.code: true",
-            "      baymcauth.2fa.disable: true",
-            "      baymcauth.2fa.status: true");
-        assertFalse(userTree.contains("baymcauth.user.info"));
-        assertFalse(userTree.contains("baymcauth.user.history"));
+        assertFalse(text.contains("  baymcauth." + "user:\n"));
+        assertFalse(text.contains("  baymcauth." + "admin:\n"));
+        assertFalse(text.contains("  baymcauth." + "invite:\n"));
+        assertFalse(text.contains("  baymcauth." + "reserve:\n"));
+        assertFalse(text.contains("  baymcauth." + "velocity:\n"));
+        assertFalse(text.contains("children:"));
 
-        String adminTree = section(text, "  baymcauth.admin:\n", "  baymcauth.help:\n");
-        assertContainsAll(adminTree,
-            "      baymcauth.user: true",
-            "      baymcauth.reload: true",
-            "      baymcauth.invite: true",
-            "      baymcauth.invite.create: true",
-            "      baymcauth.invite.list: true",
-            "      baymcauth.invite.export: true",
-            "      baymcauth.invite.info: true",
-            "      baymcauth.invite.revoke: true",
-            "      baymcauth.reserve: true",
-            "      baymcauth.reserve.offline: true",
-            "      baymcauth.reserve.info: true",
-            "      baymcauth.reserve.list: true",
-            "      baymcauth.reserve.revoke: true",
-            "      baymcauth.user.info: true",
-            "      baymcauth.user.history: true",
-            "      baymcauth.lock: true",
-            "      baymcauth.unlock: true",
-            "      baymcauth.reset2fa: true",
-            "      baymcauth.velocity: true",
-            "      baymcauth.velocity.help: true",
-            "      baymcauth.velocity.status: true",
-            "      baymcauth.velocity.reload: true",
-            "      baymcauth.velocity.affix.status: true",
-            "      baymcauth.velocity.affix.reload: true");
-
-        assertTrue(permissionEntry(text, "baymcauth.invite.create").contains("    default: false"));
-        assertTrue(permissionEntry(text, "baymcauth.reserve.offline").contains("    default: false"));
-        assertTrue(permissionEntry(text, "baymcauth.velocity.affix.reload").contains("    default: false"));
+        assertTrue(permissionEntry(text, "baymcauth.help").contains("    default: true"));
+        assertTrue(permissionEntry(text, "baymcauth.register").contains("    default: true"));
+        assertTrue(permissionEntry(text, "baymcauth.password.change").contains("    default: true"));
+        assertTrue(permissionEntry(text, "baymcauth.2fa.status").contains("    default: true"));
+        assertTrue(permissionEntry(text, "baymcauth.reload").contains("    default: \"op\""));
+        assertTrue(permissionEntry(text, "baymcauth.invite.create").contains("    default: \"op\""));
+        assertTrue(permissionEntry(text, "baymcauth.reserve.offline").contains("    default: \"op\""));
+        assertTrue(permissionEntry(text, "baymcauth.velocity.affix.reload").contains("    default: \"op\""));
     }
 
     private static void assertCommandPermission(String text, String command, String permission) {

@@ -41,6 +41,7 @@ final class BayMcAuthVelocityPluginTest {
         assertTrue(text.contains("case \"status\" -> BayMcAuthConstants.PERMISSION_VELOCITY_AFFIX_STATUS"));
         assertTrue(text.contains("case \"reload\" -> BayMcAuthConstants.PERMISSION_VELOCITY_AFFIX_RELOAD"));
         assertFalse(text.contains("requirePermission(invocation, BayMcAuthConstants.PERMISSION_VELOCITY)"));
+        assertFalse(text.contains("PERMISSION_ADMIN"));
     }
 
     @Test

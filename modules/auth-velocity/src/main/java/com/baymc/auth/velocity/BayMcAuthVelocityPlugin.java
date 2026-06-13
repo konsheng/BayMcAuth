@@ -256,7 +256,7 @@ public final class BayMcAuthVelocityPlugin {
         }
 
         private boolean requirePermission(Invocation invocation, String permission) {
-            if (invocation.source().hasPermission(permission) || invocation.source().hasPermission(BayMcAuthConstants.PERMISSION_ADMIN)) {
+            if (invocation.source().hasPermission(permission)) {
                 return true;
             }
             invocation.source().sendMessage(messages.component("common.no-permission", Map.of()));

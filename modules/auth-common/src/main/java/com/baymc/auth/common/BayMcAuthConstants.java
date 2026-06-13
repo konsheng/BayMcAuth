@@ -15,8 +15,6 @@ public final class BayMcAuthConstants {
     public static final String DATA_DIRECTORY = "BayMcAuth";
     public static final String MAIN_COMMAND = "baymcauth";
     public static final String MAIN_ALIAS = "auth";
-    public static final String PERMISSION_USER = "baymcauth.user";
-    public static final String PERMISSION_ADMIN = "baymcauth.admin";
     public static final String PERMISSION_HELP = "baymcauth.help";
     public static final String PERMISSION_STATUS = "baymcauth.status";
     public static final String PERMISSION_REGISTER = "baymcauth.register";
@@ -33,13 +31,11 @@ public final class BayMcAuthConstants {
     public static final String PERMISSION_TOTP_DISABLE = "baymcauth.2fa.disable";
     public static final String PERMISSION_TOTP_STATUS = "baymcauth.2fa.status";
     public static final String PERMISSION_RELOAD = "baymcauth.reload";
-    public static final String PERMISSION_INVITE = "baymcauth.invite";
     public static final String PERMISSION_INVITE_CREATE = "baymcauth.invite.create";
     public static final String PERMISSION_INVITE_LIST = "baymcauth.invite.list";
     public static final String PERMISSION_INVITE_EXPORT = "baymcauth.invite.export";
     public static final String PERMISSION_INVITE_INFO = "baymcauth.invite.info";
     public static final String PERMISSION_INVITE_REVOKE = "baymcauth.invite.revoke";
-    public static final String PERMISSION_RESERVE = "baymcauth.reserve";
     public static final String PERMISSION_RESERVE_OFFLINE = "baymcauth.reserve.offline";
     public static final String PERMISSION_RESERVE_INFO = "baymcauth.reserve.info";
     public static final String PERMISSION_RESERVE_LIST = "baymcauth.reserve.list";
@@ -49,7 +45,6 @@ public final class BayMcAuthConstants {
     public static final String PERMISSION_LOCK = "baymcauth.lock";
     public static final String PERMISSION_UNLOCK = "baymcauth.unlock";
     public static final String PERMISSION_RESET_2FA = "baymcauth.reset2fa";
-    public static final String PERMISSION_VELOCITY = "baymcauth.velocity";
     public static final String PERMISSION_VELOCITY_HELP = "baymcauth.velocity.help";
     public static final String PERMISSION_VELOCITY_STATUS = "baymcauth.velocity.status";
     public static final String PERMISSION_VELOCITY_RELOAD = "baymcauth.velocity.reload";

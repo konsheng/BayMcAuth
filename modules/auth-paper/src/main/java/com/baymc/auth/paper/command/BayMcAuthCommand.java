@@ -61,7 +61,7 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
             return permitted(sender, BayMcAuthConstants.PERMISSION_HELP, () -> {
-                messages.send(sender, sender.hasPermission(BayMcAuthConstants.PERMISSION_ADMIN) ? "help.admin" : "help.user");
+                messages.send(sender, hasAdminCommandPermission(sender) ? "help.admin" : "help.user");
                 return true;
             });
         }
@@ -106,7 +106,7 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean help(CommandSender sender) {
-        messages.send(sender, sender.hasPermission(BayMcAuthConstants.PERMISSION_ADMIN) ? "help.admin" : "help.user");
+        messages.send(sender, hasAdminCommandPermission(sender) ? "help.admin" : "help.user");
         return true;
     }
 
@@ -334,7 +334,7 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean permitted(CommandSender sender, String permission, UserAction action) {
-        if (!sender.hasPermission(permission) && !sender.hasPermission(BayMcAuthConstants.PERMISSION_ADMIN)) {
+        if (!sender.hasPermission(permission)) {
             messages.send(sender, "common.no-permission");
             return true;
         }
@@ -342,7 +342,7 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean admin(CommandSender sender, String permission, AdminAction action) {
-        if (!sender.hasPermission(permission) && !sender.hasPermission(BayMcAuthConstants.PERMISSION_ADMIN)) {
+        if (!sender.hasPermission(permission)) {
             messages.send(sender, "common.no-permission");
             return true;
         }
@@ -352,6 +352,31 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
             messages.send(sender, "admin.user-not-found");
             return true;
         }
+    }
+
+    private boolean hasAdminCommandPermission(CommandSender sender) {
+        return List.of(
+            BayMcAuthConstants.PERMISSION_RELOAD,
+            BayMcAuthConstants.PERMISSION_INVITE_CREATE,
+            BayMcAuthConstants.PERMISSION_INVITE_LIST,
+            BayMcAuthConstants.PERMISSION_INVITE_EXPORT,
+            BayMcAuthConstants.PERMISSION_INVITE_INFO,
+            BayMcAuthConstants.PERMISSION_INVITE_REVOKE,
+            BayMcAuthConstants.PERMISSION_RESERVE_OFFLINE,
+            BayMcAuthConstants.PERMISSION_RESERVE_INFO,
+            BayMcAuthConstants.PERMISSION_RESERVE_LIST,
+            BayMcAuthConstants.PERMISSION_RESERVE_REVOKE,
+            BayMcAuthConstants.PERMISSION_USER_INFO,
+            BayMcAuthConstants.PERMISSION_USER_HISTORY,
+            BayMcAuthConstants.PERMISSION_LOCK,
+            BayMcAuthConstants.PERMISSION_UNLOCK,
+            BayMcAuthConstants.PERMISSION_RESET_2FA,
+            BayMcAuthConstants.PERMISSION_VELOCITY_HELP,
+            BayMcAuthConstants.PERMISSION_VELOCITY_STATUS,
+            BayMcAuthConstants.PERMISSION_VELOCITY_RELOAD,
+            BayMcAuthConstants.PERMISSION_VELOCITY_AFFIX_STATUS,
+            BayMcAuthConstants.PERMISSION_VELOCITY_AFFIX_RELOAD
+        ).stream().anyMatch(sender::hasPermission);
     }
 
     private boolean requireArgs(CommandSender sender, String[] args, int count) {
