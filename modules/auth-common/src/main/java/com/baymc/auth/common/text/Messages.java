@@ -38,6 +38,14 @@ public final class Messages {
         return lines.isEmpty() ? path : lines.getFirst();
     }
 
+    public String text(String path) {
+        return text(path, Map.of());
+    }
+
+    public String text(String path, Map<String, String> placeholders) {
+        return replace(plain(path), placeholders);
+    }
+
     public List<String> lines(String path) {
         Object value = get(path);
         if (value instanceof List<?> list) {

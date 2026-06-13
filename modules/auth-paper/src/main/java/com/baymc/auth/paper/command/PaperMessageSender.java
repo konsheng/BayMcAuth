@@ -32,6 +32,14 @@ public final class PaperMessageSender {
         }
     }
 
+    public String text(String key) {
+        return messages.text(key);
+    }
+
+    public String text(String key, Map<String, String> placeholders) {
+        return messages.text(key, placeholders);
+    }
+
     public void actionbar(Player player, String key, Map<String, String> placeholders) {
         player.sendActionBar(messages.component(key, placeholders));
     }

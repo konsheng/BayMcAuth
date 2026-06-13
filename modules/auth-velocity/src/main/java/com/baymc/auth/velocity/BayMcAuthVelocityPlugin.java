@@ -34,7 +34,6 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import net.kyori.adventure.text.Component;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -98,18 +97,18 @@ public final class BayMcAuthVelocityPlugin {
         String username = event.getUsername();
         String ip = event.getConnection().getRemoteAddress().getAddress().getHostAddress();
         if (!databaseAvailable) {
-            deny(event, username, ip, "数据库不可用, 无法完成身份分流");
+            deny(event, username, ip, "velocity.reason.database-unavailable", Map.of());
             return;
         }
         IdentityDecision decision;
         try {
             decision = identityResolver.resolve(username, nameLocks);
         } catch (RuntimeException exception) {
-            deny(event, username, ip, "身份分流异常");
+            deny(event, username, ip, "velocity.reason.identity-route-error", Map.of());
             return;
         }
         if (!decision.allowed()) {
-            deny(event, username, ip, decision.reason());
+            deny(event, username, ip, decision.reasonKey(), decision.reasonPlaceholders());
             return;
         }
         if (decision.accountType().requiresRegister()) {
@@ -125,7 +124,8 @@ public final class BayMcAuthVelocityPlugin {
             ip, "Velocity", AuditResult.SUCCESS, null, decision.auditMessage()));
     }
 
-    private void deny(PreLoginEvent event, String username, String ip, String reason) {
+    private void deny(PreLoginEvent event, String username, String ip, String reasonKey, Map<String, String> reasonPlaceholders) {
+        String reason = messages.text(reasonKey, reasonPlaceholders);
         event.setResult(PreLoginEvent.PreLoginComponentResult.denied(messages.component("velocity.denied", Map.of("reason", reason))));
         if (audits != null) {
             audits.write(AuditEntry.now(AuditEventType.VELOCITY_IDENTITY_ROUTE, username, null, null, ip, "Velocity", AuditResult.DENIED, reason,
@@ -207,7 +207,7 @@ public final class BayMcAuthVelocityPlugin {
                 if (invocation.source() instanceof Player player) {
                     player.spoofChatInput("/baymcauth " + String.join(" ", args));
                 } else {
-                    invocation.source().sendMessage(Component.text("Velocity 端只处理 /baymcauth velocity 子命令"));
+                    send(invocation, "velocity.command-velocity-only");
                 }
                 return;
             }
@@ -215,10 +215,7 @@ public final class BayMcAuthVelocityPlugin {
                 if (!requirePermission(invocation, BayMcAuthConstants.PERMISSION_VELOCITY_HELP)) {
                     return;
                 }
-                invocation.source().sendMessage(Component.text("/baymcauth velocity status"));
-                invocation.source().sendMessage(Component.text("/baymcauth velocity reload"));
-                invocation.source().sendMessage(Component.text("/baymcauth velocity affix status"));
-                invocation.source().sendMessage(Component.text("/baymcauth velocity affix reload"));
+                send(invocation, "velocity.help");
                 return;
             }
             switch (args[1].toLowerCase(java.util.Locale.ROOT)) {
@@ -226,14 +223,14 @@ public final class BayMcAuthVelocityPlugin {
                     if (!requirePermission(invocation, BayMcAuthConstants.PERMISSION_VELOCITY_STATUS)) {
                         return;
                     }
-                    invocation.source().sendMessage(messages.component("velocity.status", Map.of("database", databaseAvailable ? "available" : "unavailable")));
+                    send(invocation, "velocity.status", Map.of("database", messages.text(databaseAvailable ? "common.status.available" : "common.status.unavailable")));
                 }
                 case "reload" -> {
                     if (!requirePermission(invocation, BayMcAuthConstants.PERMISSION_VELOCITY_RELOAD)) {
                         return;
                     }
                     reloadInternal();
-                    invocation.source().sendMessage(messages.component("velocity.reload-success", Map.of()));
+                    send(invocation, "velocity.reload-success");
                 }
                 case "affix" -> {
                     String action = args.length >= 3 ? args[2].toLowerCase(java.util.Locale.ROOT) : "status";
@@ -243,15 +240,15 @@ public final class BayMcAuthVelocityPlugin {
                         default -> null;
                     };
                     if (permission == null) {
-                        invocation.source().sendMessage(messages.component("common.unknown-command", Map.of()));
+                        send(invocation, "common.unknown-command");
                         return;
                     }
                     if (!requirePermission(invocation, permission)) {
                         return;
                     }
-                    invocation.source().sendMessage(messages.component("velocity.affix-status", Map.of("mode", config.offlineAffix().mode())));
+                    send(invocation, "velocity.affix-status", Map.of("mode", config.offlineAffix().mode()));
                 }
-                default -> invocation.source().sendMessage(messages.component("common.unknown-command", Map.of()));
+                default -> send(invocation, "common.unknown-command");
             }
         }
 
@@ -259,8 +256,16 @@ public final class BayMcAuthVelocityPlugin {
             if (invocation.source().hasPermission(permission)) {
                 return true;
             }
-            invocation.source().sendMessage(messages.component("common.no-permission", Map.of()));
+            send(invocation, "common.no-permission");
             return false;
+        }
+
+        private void send(Invocation invocation, String key) {
+            send(invocation, key, Map.of());
+        }
+
+        private void send(Invocation invocation, String key, Map<String, String> placeholders) {
+            messages.components(key, placeholders).forEach(invocation.source()::sendMessage);
         }
 
         @Override

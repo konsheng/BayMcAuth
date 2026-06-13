@@ -112,8 +112,8 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
 
     private boolean status(CommandSender sender) {
         messages.send(sender, "status.line", Map.of(
-            "database", authService.databaseAvailable() ? "available" : "unavailable",
-            "redis", "unknown"
+            "database", messages.text(authService.databaseAvailable() ? "common.status.available" : "common.status.unavailable"),
+            "redis", messages.text("common.status.unknown")
         ));
         return true;
     }
@@ -189,11 +189,12 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
             case "revoke" -> admin(sender, BayMcAuthConstants.PERMISSION_INVITE_REVOKE, () -> {
                 if (requireArgs(sender, args, 2)) {
                     String code = args[1];
-                    confirmations.put(sender.getName(), "撤销邀请码 " + code, () -> {
+                    String action = messages.text("admin.action.revoke-invite", Map.of("code", code));
+                    confirmations.put(sender.getName(), action, () -> {
                         inviteService.revoke(code, sender);
                         messages.send(sender, "invite.revoked", Map.of("code", code));
                     }, configRef.get().confirm().expire());
-                    messages.send(sender, "admin.confirm-needed", Map.of("action", "撤销邀请码 " + code));
+                    messages.send(sender, "admin.confirm-needed", Map.of("action", action));
                 }
                 return true;
             });
@@ -230,11 +231,12 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
             case "revoke" -> admin(sender, BayMcAuthConstants.PERMISSION_RESERVE_REVOKE, () -> {
                 if (requireArgs(sender, args, 2)) {
                     String playerName = args[1];
-                    confirmations.put(sender.getName(), "撤销预留名 " + playerName, () -> {
+                    String action = messages.text("admin.action.revoke-reserve", Map.of("player", playerName));
+                    confirmations.put(sender.getName(), action, () -> {
                         reserveService.revoke(sender, playerName);
                         messages.send(sender, "admin.reserve-revoked", Map.of("player", playerName));
                     }, configRef.get().confirm().expire());
-                    messages.send(sender, "admin.confirm-needed", Map.of("action", "撤销预留名 " + playerName));
+                    messages.send(sender, "admin.confirm-needed", Map.of("action", action));
                 }
                 return true;
             });
@@ -277,7 +279,8 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
 
     private boolean lock(CommandSender sender, String playerName, String reason) {
         UserRecord user = users.findByName(playerName).stream().findFirst().orElseThrow();
-        confirmations.put(sender.getName(), "锁定用户 " + playerName, () -> {
+        String action = messages.text("admin.action.lock-user", Map.of("player", playerName));
+        confirmations.put(sender.getName(), action, () -> {
             UserRecord locked = new UserRecord(user.id(), user.uuid(), user.playerName(), user.playerNameLower(), user.accountType(), user.passwordEnabled(),
                 user.passwordPlain(), user.passwordCipher(), user.totpEnabled(), user.totpConfirmed(), user.totpSecret(), user.totpPendingSecret(),
                 user.registerInviteCode(), user.registerInviteId(), true, reason, sender.getName(), sender instanceof Player player ? player.getUniqueId() : null,
@@ -285,13 +288,14 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
             users.save(locked);
             messages.send(sender, "admin.lock-success", Map.of("player", playerName));
         }, configRef.get().confirm().expire());
-        messages.send(sender, "admin.confirm-needed", Map.of("action", "锁定用户 " + playerName));
+        messages.send(sender, "admin.confirm-needed", Map.of("action", action));
         return true;
     }
 
     private boolean unlock(CommandSender sender, String playerName) {
         UserRecord user = users.findByName(playerName).stream().findFirst().orElseThrow();
-        confirmations.put(sender.getName(), "解锁用户 " + playerName, () -> {
+        String action = messages.text("admin.action.unlock-user", Map.of("player", playerName));
+        confirmations.put(sender.getName(), action, () -> {
             UserRecord unlocked = new UserRecord(user.id(), user.uuid(), user.playerName(), user.playerNameLower(), user.accountType(), user.passwordEnabled(),
                 user.passwordPlain(), user.passwordCipher(), user.totpEnabled(), user.totpConfirmed(), user.totpSecret(), user.totpPendingSecret(),
                 user.registerInviteCode(), user.registerInviteId(), false, null, null, null, null, user.registerIp(), user.lastLoginIp(),
@@ -299,18 +303,19 @@ public final class BayMcAuthCommand implements CommandExecutor, TabCompleter {
             users.save(unlocked);
             messages.send(sender, "admin.unlock-success", Map.of("player", playerName));
         }, configRef.get().confirm().expire());
-        messages.send(sender, "admin.confirm-needed", Map.of("action", "解锁用户 " + playerName));
+        messages.send(sender, "admin.confirm-needed", Map.of("action", action));
         return true;
     }
 
     private boolean reset2fa(CommandSender sender, String playerName) {
         UserRecord user = users.findByName(playerName).stream().findFirst().orElseThrow();
-        confirmations.put(sender.getName(), "重置玩家 TOTP " + playerName, () -> {
+        String action = messages.text("admin.action.reset-totp", Map.of("player", playerName));
+        confirmations.put(sender.getName(), action, () -> {
             UserRecord reset = user.withoutTotp(Instant.now());
             users.save(reset);
             messages.send(sender, "admin.reset2fa-success", Map.of("player", playerName));
         }, configRef.get().confirm().expire());
-        messages.send(sender, "admin.confirm-needed", Map.of("action", "重置玩家 TOTP " + playerName));
+        messages.send(sender, "admin.confirm-needed", Map.of("action", action));
         return true;
     }
 

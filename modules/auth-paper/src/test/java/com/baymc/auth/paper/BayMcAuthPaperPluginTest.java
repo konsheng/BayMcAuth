@@ -209,6 +209,56 @@ final class BayMcAuthPaperPluginTest {
         assertTrue(permissionEntry(text, "baymcauth.velocity.affix.reload").contains("    default: \"op\""));
     }
 
+    @Test
+    void defaultLanguageContainsPlayerVisibleRuntimeKeys() throws Exception {
+        Path source = findProjectRoot().resolve("modules/auth-paper/src/main/resources/lang/zh_CN.yml");
+        String text = Files.readString(source).replace("\r\n", "\n");
+
+        assertContainsAll(text,
+            "  status:\n",
+            "    available: \"可用\"",
+            "    unavailable: \"不可用\"",
+            "    unknown: \"未知\"",
+            "  action:\n",
+            "    revoke-invite: \"撤销邀请码 <code>\"",
+            "    revoke-reserve: \"撤销预留名 <player>\"",
+            "    lock-user: \"锁定用户 <player>\"",
+            "    unlock-user: \"解锁用户 <player>\"",
+            "    reset-totp: \"重置玩家 TOTP <player>\"",
+            "  command-velocity-only: \"<prefix><red>Velocity 端只处理 /baymcauth velocity 子命令</red>\"",
+            "  help:\n",
+            "  reason:\n",
+            "    database-unavailable: \"数据库不可用, 无法完成身份分流\"",
+            "    identity-route-error: \"身份分流异常\"",
+            "    identity-name-invalid: \"玩家名格式无效\"",
+            "    username-blacklisted: \"玩家名命中黑名单\"",
+            "    offline-affix-case-invalid: \"离线名前后缀大小写错误\"",
+            "    identity-context-missing: \"缺少 Velocity 身份分流结果\"");
+    }
+
+    @Test
+    void paperPlayerVisibleDynamicTextsUseLanguageKeys() throws Exception {
+        Path command = findProjectRoot().resolve("modules/auth-paper/src/main/java/com/baymc/auth/paper/command/BayMcAuthCommand.java");
+        String commandText = Files.readString(command);
+        Path service = findProjectRoot().resolve("modules/auth-paper/src/main/java/com/baymc/auth/paper/service/AuthService.java");
+        String serviceText = Files.readString(service);
+
+        assertContainsAll(commandText,
+            "messages.text(authService.databaseAvailable() ? \"common.status.available\" : \"common.status.unavailable\")",
+            "messages.text(\"common.status.unknown\")",
+            "messages.text(\"admin.action.revoke-invite\"",
+            "messages.text(\"admin.action.revoke-reserve\"",
+            "messages.text(\"admin.action.lock-user\"",
+            "messages.text(\"admin.action.unlock-user\"",
+            "messages.text(\"admin.action.reset-totp\"");
+        assertFalse(commandText.contains("Map.of(\"action\", \"撤销"));
+        assertFalse(commandText.contains("Map.of(\"action\", \"锁定"));
+        assertFalse(commandText.contains("Map.of(\"action\", \"解锁"));
+        assertFalse(commandText.contains("Map.of(\"action\", \"重置"));
+        assertTrue(serviceText.contains("messages.text(\"velocity.reason.identity-context-missing\")"));
+        assertFalse(serviceText.contains("\"缺少 Velocity 身份分流结果\""));
+    }
+
     private static void assertCommandPermission(String text, String command, String permission) {
         assertTrue(text.contains("  " + command + ":\n")
             && text.contains("    permission: \"" + permission + "\""));

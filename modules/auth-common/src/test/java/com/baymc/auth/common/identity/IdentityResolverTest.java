@@ -55,7 +55,32 @@ final class IdentityResolverTest {
         BlacklistService blacklist = new BlacklistService();
         blacklist.replaceUsernameKeywords(java.util.List.of("admin"));
 
-        assertFalse(new IdentityResolver(config, blacklist).resolve("AdminUser", emptyLookup()).allowed());
+        var decision = new IdentityResolver(config, blacklist).resolve("AdminUser", emptyLookup());
+
+        assertFalse(decision.allowed());
+        assertEquals("velocity.reason.username-blacklisted", decision.reasonKey());
+    }
+
+    @Test
+    void rejectReasonsUseLanguageKeys() throws Exception {
+        AuthConfig config = AuthConfig.from(document("""
+            account-types:
+              name-affix: true
+              name-plain: true
+              name-chinese: true
+            offline-affix:
+              mode: prefix-only
+              prefixes:
+                - "VIP"
+              suffixes:
+                - "_"
+              case-sensitive: true
+              reject-wrong-case: true
+            """), ignored -> { });
+        IdentityResolver resolver = new IdentityResolver(config, new BlacklistService());
+
+        assertEquals("velocity.reason.identity-name-invalid", resolver.resolve("bad name", emptyLookup()).reasonKey());
+        assertEquals("velocity.reason.offline-affix-case-invalid", resolver.resolve("vipName", emptyLookup()).reasonKey());
     }
 
     private NameLockLookup emptyLookup() {

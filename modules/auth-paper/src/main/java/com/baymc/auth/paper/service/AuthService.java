@@ -92,7 +92,7 @@ public final class AuthService {
         Optional<IdentityContext> context = identityContexts.findLatest(player.getName(), ip);
         if (context.isEmpty()) {
             loginStates.set(player.getUniqueId(), player.getName(), AccountType.PREMIUM, AuthStep.IDENTITY_MISSING, Instant.now().plusSeconds(5));
-            player.kick(messages.messages().component("velocity.denied", Map.of("reason", "缺少 Velocity 身份分流结果")));
+            player.kick(messages.messages().component("velocity.denied", Map.of("reason", messages.text("velocity.reason.identity-context-missing"))));
             return;
         }
         identityContexts.consume(context.get().contextId());

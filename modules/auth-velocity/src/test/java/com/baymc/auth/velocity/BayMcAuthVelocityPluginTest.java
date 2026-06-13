@@ -53,6 +53,23 @@ final class BayMcAuthVelocityPluginTest {
         assertTrue(text.contains("description = \"Velocity 与 Paper/Folia 网络统一认证插件\""));
     }
 
+    @Test
+    void velocityPlayerVisibleTextsUseLanguageKeys() throws Exception {
+        Path source = findProjectRoot().resolve("modules/auth-velocity/src/main/java/com/baymc/auth/velocity/BayMcAuthVelocityPlugin.java");
+        String text = Files.readString(source);
+
+        assertFalse(text.contains("Component.text("));
+        assertFalse(text.contains("Velocity 端只处理 /baymcauth velocity 子命令"));
+        assertFalse(text.contains("deny(event, username, ip, \"数据库不可用"));
+        assertFalse(text.contains("deny(event, username, ip, \"身份分流异常"));
+        assertTrue(text.contains("deny(event, username, ip, \"velocity.reason.database-unavailable\", Map.of())"));
+        assertTrue(text.contains("deny(event, username, ip, \"velocity.reason.identity-route-error\", Map.of())"));
+        assertTrue(text.contains("messages.text(reasonKey, reasonPlaceholders)"));
+        assertTrue(text.contains("send(invocation, \"velocity.command-velocity-only\")"));
+        assertTrue(text.contains("send(invocation, \"velocity.help\")"));
+        assertTrue(text.contains("messages.text(databaseAvailable ? \"common.status.available\" : \"common.status.unavailable\")"));
+    }
+
     private static Path findProjectRoot() {
         Path current = Path.of("").toAbsolutePath();
         while (current != null) {

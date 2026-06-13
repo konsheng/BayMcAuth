@@ -9,6 +9,10 @@ common:
   database-unavailable: "<prefix><red>数据库不可用, 当前操作已被拒绝</red>"
   redis-unavailable: "<prefix><yellow>Redis 不可用, 当前会话将使用本地缓存</yellow>"
   unknown-command: "<prefix><red>未知命令</red>"
+  status:
+    available: "可用"
+    unavailable: "不可用"
+    unknown: "未知"
 
 # 帮助和状态
 help:
@@ -117,11 +121,30 @@ admin:
   reserve-success: "<prefix><green>已预留离线名 <player></green>"
   reserve-revoked: "<prefix><green>已撤销预留名 <player></green>"
   user-info: "<prefix><green>玩家 <player>, UUID <uuid>, 类型 <account_type>, 锁定 <locked></green>"
+  action:
+    revoke-invite: "撤销邀请码 <code>"
+    revoke-reserve: "撤销预留名 <player>"
+    lock-user: "锁定用户 <player>"
+    unlock-user: "解锁用户 <player>"
+    reset-totp: "重置玩家 TOTP <player>"
 
 # Velocity 相关
 velocity:
   command-on-paper: "<prefix><red>该命令由 Velocity 端处理, 请在 Velocity 控制台执行</red>"
+  command-velocity-only: "<prefix><red>Velocity 端只处理 /baymcauth velocity 子命令</red>"
+  help:
+    - "<prefix><aqua>/baymcauth velocity status</aqua>"
+    - "<aqua>/baymcauth velocity reload</aqua>"
+    - "<aqua>/baymcauth velocity affix status</aqua>"
+    - "<aqua>/baymcauth velocity affix reload</aqua>"
   reload-success: "<prefix><green>Velocity 配置已重载</green>"
   status: "<prefix><green>Velocity 正在运行, 数据库 <database></green>"
   affix-status: "<prefix><green>当前 affix 模式: <mode></green>"
   denied: "<red>连接被拒绝, <reason></red>"
+  reason:
+    database-unavailable: "数据库不可用, 无法完成身份分流"
+    identity-route-error: "身份分流异常"
+    identity-name-invalid: "玩家名格式无效"
+    username-blacklisted: "玩家名命中黑名单"
+    offline-affix-case-invalid: "离线名前后缀大小写错误"
+    identity-context-missing: "缺少 Velocity 身份分流结果"

@@ -26,15 +26,15 @@ public final class IdentityResolver {
 
     public IdentityDecision resolve(String playerName, NameLockLookup nameLockLookup) {
         if (!NameUtil.validMinecraftName(playerName)) {
-            return IdentityDecision.deny("玩家名格式无效");
+            return IdentityDecision.deny("velocity.reason.identity-name-invalid");
         }
         if (blacklistService.usernameBlocked(playerName)) {
-            return IdentityDecision.deny("玩家名命中黑名单");
+            return IdentityDecision.deny("velocity.reason.username-blacklisted");
         }
         if (config.accountTypes().nameAffix()) {
             AffixResult affix = matchAffix(playerName);
             if (affix.wrongCase()) {
-                return IdentityDecision.deny("离线名前后缀大小写错误");
+                return IdentityDecision.deny("velocity.reason.offline-affix-case-invalid");
             }
             if (affix.matched()) {
                 return IdentityDecision.allow(AccountType.OFFLINE_AFFIX, OfflineUuidUtil.offlineUuid(playerName), "玩家 " + playerName + " 命中 OFFLINE_AFFIX");
