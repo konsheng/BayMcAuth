@@ -2,6 +2,9 @@ package com.baymc.auth.common.config;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class AuthConfigTest {
     @Test
-    void settingsDebugDefaultsToFalse() {
-        AuthConfig config = AuthConfig.from(YamlDocument.fromString("""
+    void settingsDebugDefaultsToFalse() throws Exception {
+        AuthConfig config = AuthConfig.from(document("""
             settings:
               language: zh_CN
               timezone: Asia/Shanghai
@@ -23,8 +26,8 @@ final class AuthConfigTest {
     }
 
     @Test
-    void settingsDebugCanBeEnabled() {
-        AuthConfig config = AuthConfig.from(YamlDocument.fromString("""
+    void settingsDebugCanBeEnabled() throws Exception {
+        AuthConfig config = AuthConfig.from(document("""
             settings:
               language: zh_CN
               timezone: Asia/Shanghai
@@ -35,10 +38,40 @@ final class AuthConfigTest {
     }
 
     @Test
-    void loginPromptReadsOnlyDeclaredIntervalKeys() {
+    void databaseTablePrefixDefaultsToBayMcAuthPrefix() throws Exception {
+        AuthConfig config = AuthConfig.from(document("""
+            database:
+              type: mysql
+            """), ignored -> { });
+
+        assertEquals("baymcauth_", config.database().tablePrefix());
+    }
+
+    @Test
+    void typeErrorsUseDefaultsFromDefaultConfig() throws Exception {
         List<String> warnings = new ArrayList<>();
 
-        AuthConfig config = AuthConfig.from(YamlDocument.fromString("""
+        AuthConfig config = AuthConfig.from(document("""
+            database:
+              table-prefix:
+                - invalid
+            login-prompt:
+              bossbar:
+                update-interval:
+                  - invalid
+            """), warnings::add);
+
+        assertEquals("baymcauth_", config.database().tablePrefix());
+        assertEquals(Duration.ofSeconds(1), config.loginPrompt().bossbar().interval());
+        assertTrue(warnings.stream().anyMatch(warning -> warning.contains("database.table-prefix") && warning.contains("baymcauth_")));
+        assertTrue(warnings.stream().anyMatch(warning -> warning.contains("login-prompt.bossbar.update-interval") && warning.contains("1s")));
+    }
+
+    @Test
+    void loginPromptReadsOnlyDeclaredIntervalKeys() throws Exception {
+        List<String> warnings = new ArrayList<>();
+
+        AuthConfig config = AuthConfig.from(document("""
             login-prompt:
               bossbar:
                 enabled: true
@@ -67,5 +100,24 @@ final class AuthConfigTest {
         assertFalse(warnings.stream().anyMatch(warning -> warning.contains("login-prompt.subtitle.update-interval")));
         assertFalse(warnings.stream().anyMatch(warning -> warning.contains("login-prompt.actionbar.send-interval")));
         assertFalse(warnings.stream().anyMatch(warning -> warning.contains("login-prompt.chat.update-interval")));
+    }
+
+    private static YamlDocument document(String text) throws IOException {
+        return YamlDocument.fromString(text, defaultConfig());
+    }
+
+    private static String defaultConfig() throws IOException {
+        return Files.readString(findProjectRoot().resolve("modules/auth-paper/src/main/resources/config.yml"));
+    }
+
+    private static Path findProjectRoot() {
+        Path current = Path.of("").toAbsolutePath();
+        while (current != null) {
+            if (Files.exists(current.resolve("settings.gradle.kts"))) {
+                return current;
+            }
+            current = current.getParent();
+        }
+        throw new IllegalStateException("Project root not found");
     }
 }

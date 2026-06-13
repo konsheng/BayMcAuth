@@ -100,7 +100,7 @@ public final class MySqlStorage implements AutoCloseable {
 
     private static String sanitizePrefix(String value) {
         if (value == null || !value.matches("[A-Za-z0-9_]+")) {
-            return "baymc_auth_";
+            throw new IllegalArgumentException("Invalid database.table-prefix: " + value);
         }
         return value;
     }

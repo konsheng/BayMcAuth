@@ -37,117 +37,117 @@ public record AuthConfig(
     Confirm confirm
 ) {
     public static AuthConfig from(YamlDocument document, Consumer<String> warnings) {
-        ConfigReader reader = new ConfigReader(document.values(), warnings);
+        ConfigReader reader = new ConfigReader(document, warnings);
         return new AuthConfig(
             new Settings(
-                reader.string("settings.language", "zh_CN"),
-                ZoneId.of(reader.string("settings.timezone", "Asia/Shanghai")),
-                reader.bool("settings.debug", false)
+                reader.string("settings.language"),
+                ZoneId.of(reader.string("settings.timezone")),
+                reader.bool("settings.debug")
             ),
             new Database(
-                reader.string("database.type", "mysql"),
-                reader.string("database.host", "127.0.0.1"),
-                reader.integer("database.port", 3306),
-                reader.string("database.database", "baymc"),
-                reader.string("database.username", "root"),
-                reader.string("database.password", ""),
-                reader.string("database.table-prefix", "baymc_auth_"),
+                reader.string("database.type"),
+                reader.string("database.host"),
+                reader.integer("database.port"),
+                reader.string("database.database"),
+                reader.string("database.username"),
+                reader.string("database.password"),
+                reader.string("database.table-prefix"),
                 new Pool(
-                    reader.integer("database.pool.maximum-pool-size", 10),
-                    reader.integer("database.pool.minimum-idle", 2),
-                    duration(reader.string("database.pool.connection-timeout", "10s")),
-                    duration(reader.string("database.pool.idle-timeout", "10m")),
-                    duration(reader.string("database.pool.max-lifetime", "30m"))
+                    reader.integer("database.pool.maximum-pool-size"),
+                    reader.integer("database.pool.minimum-idle"),
+                    duration(reader.string("database.pool.connection-timeout")),
+                    duration(reader.string("database.pool.idle-timeout")),
+                    duration(reader.string("database.pool.max-lifetime"))
                 )
             ),
             new Redis(
-                reader.bool("redis.enabled", true),
-                reader.string("redis.host", "127.0.0.1"),
-                reader.integer("redis.port", 6379),
-                reader.string("redis.password", ""),
-                reader.integer("redis.database", 0),
-                reader.string("redis.key-prefix", "baymcauth"),
-                duration(reader.string("redis.connect-timeout", "5s")),
-                duration(reader.string("redis.command-timeout", "5s"))
+                reader.bool("redis.enabled"),
+                reader.string("redis.host"),
+                reader.integer("redis.port"),
+                reader.string("redis.password"),
+                reader.integer("redis.database"),
+                reader.string("redis.key-prefix"),
+                duration(reader.string("redis.connect-timeout")),
+                duration(reader.string("redis.command-timeout"))
             ),
             new Session(
-                reader.string("session.mode", "redis"),
-                duration(reader.string("session.expire", "7d")),
-                reader.bool("session.keep-online-when-redis-down", true)
+                reader.string("session.mode"),
+                duration(reader.string("session.expire")),
+                reader.bool("session.keep-online-when-redis-down")
             ),
             new AccountTypes(
-                reader.bool("account-types.name-affix", true),
-                reader.bool("account-types.name-plain", true),
-                reader.bool("account-types.name-chinese", true)
+                reader.bool("account-types.name-affix"),
+                reader.bool("account-types.name-plain"),
+                reader.bool("account-types.name-chinese")
             ),
             new OfflineAffix(
-                reader.string("offline-affix.mode", "both"),
+                reader.string("offline-affix.mode"),
                 reader.stringList("offline-affix.prefixes"),
                 reader.stringList("offline-affix.suffixes"),
-                reader.bool("offline-affix.case-sensitive", true),
-                reader.bool("offline-affix.reject-wrong-case", true)
+                reader.bool("offline-affix.case-sensitive"),
+                reader.bool("offline-affix.reject-wrong-case")
             ),
-            new PlainName(reader.bool("plain-name.revoke-requires-confirm", true)),
-            new ChineseName(reader.bool("chinese-name.allow", true)),
+            new PlainName(reader.bool("plain-name.revoke-requires-confirm")),
+            new ChineseName(reader.bool("chinese-name.allow")),
             new Invite(
-                reader.bool("invite.require-for-offline-register", true),
-                reader.integer("invite.default-expire-days", 7),
+                reader.bool("invite.require-for-offline-register"),
+                reader.integer("invite.default-expire-days"),
                 new InviteFormat(
-                    reader.string("invite.format.prefix", "BAYMC"),
+                    reader.string("invite.format.prefix"),
                     reader.intList("invite.format.groups"),
-                    reader.string("invite.format.separator", "-"),
-                    reader.string("invite.format.charset", "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"),
-                    reader.bool("invite.format.uppercase", true)
+                    reader.string("invite.format.separator"),
+                    reader.string("invite.format.charset"),
+                    reader.bool("invite.format.uppercase")
                 )
             ),
             new Password(
-                reader.integer("password.min-length", 6),
-                reader.integer("password.max-length", 64),
-                reader.integer("password.bcrypt-cost", 12),
-                reader.bool("password.store-current-plain", true),
-                reader.bool("password.store-history-plain", true)
+                reader.integer("password.min-length"),
+                reader.integer("password.max-length"),
+                reader.integer("password.bcrypt-cost"),
+                reader.bool("password.store-current-plain"),
+                reader.bool("password.store-history-plain")
             ),
             new Totp(
-                reader.string("totp.issuer", "BayMc"),
-                reader.integer("totp.digits", 6),
-                duration(reader.string("totp.period", "30s")),
-                reader.integer("totp.window", 1)
+                reader.string("totp.issuer"),
+                reader.integer("totp.digits"),
+                duration(reader.string("totp.period")),
+                reader.integer("totp.window")
             ),
             new Login(
-                duration(reader.string("login.timeout", "60s")),
-                reader.bool("login.allow-premium-auto-login", true)
+                duration(reader.string("login.timeout")),
+                reader.bool("login.allow-premium-auto-login")
             ),
             new FailureLock(
-                reader.bool("failure-lock.enabled", true),
+                reader.bool("failure-lock.enabled"),
                 thresholds(reader.mapList("failure-lock.password.account-thresholds")),
                 thresholds(reader.mapList("failure-lock.totp.account-thresholds")),
                 thresholds(reader.mapList("failure-lock.ip.thresholds"))
             ),
             new LoginPrompt(
-                channel(reader, "login-prompt.bossbar", "update-interval", "1s"),
-                channel(reader, "login-prompt.title", "send-interval", "10s"),
-                channel(reader, "login-prompt.subtitle", "send-interval", "10s"),
-                channel(reader, "login-prompt.actionbar", "update-interval", "1s"),
-                channel(reader, "login-prompt.chat", "send-interval", "15s")
+                channel(reader, "login-prompt.bossbar", "update-interval"),
+                channel(reader, "login-prompt.title", "send-interval"),
+                channel(reader, "login-prompt.subtitle", "send-interval"),
+                channel(reader, "login-prompt.actionbar", "update-interval"),
+                channel(reader, "login-prompt.chat", "send-interval")
             ),
-            new FirstJoin(reader.bool("first-join.enabled", true), duration(reader.string("first-join.delay", "1s")), reader.integer("first-join.times", 1)),
+            new FirstJoin(reader.bool("first-join.enabled"), duration(reader.string("first-join.delay")), reader.integer("first-join.times")),
             new Blacklist(
                 blacklistGroup(reader, "blacklist.username"),
                 blacklistGroup(reader, "blacklist.password")
             ),
             new Audit(
-                reader.bool("audit.enabled", true),
-                reader.bool("audit.console", true),
-                reader.bool("audit.file", true),
-                reader.bool("audit.database", true),
-                reader.string("audit.directory", "logs")
+                reader.bool("audit.enabled"),
+                reader.bool("audit.console"),
+                reader.bool("audit.file"),
+                reader.bool("audit.database"),
+                reader.string("audit.directory")
             ),
             new Security(
-                reader.bool("security.hide-totp-secret-in-logs", true),
-                reader.bool("security.hide-totp-code-in-logs", true),
-                reader.bool("security.hide-password-in-logs", true)
+                reader.bool("security.hide-totp-secret-in-logs"),
+                reader.bool("security.hide-totp-code-in-logs"),
+                reader.bool("security.hide-password-in-logs")
             ),
-            new Confirm(duration(reader.string("confirm.expire", "30s")))
+            new Confirm(duration(reader.string("confirm.expire")))
         );
     }
 
@@ -159,18 +159,18 @@ public record AuthConfig(
         return DurationParser.parse(value);
     }
 
-    private static PromptChannel channel(ConfigReader reader, String base, String intervalKey, String defaultInterval) {
-        return new PromptChannel(reader.bool(base + ".enabled", true), duration(reader.string(base + "." + intervalKey, defaultInterval)));
+    private static PromptChannel channel(ConfigReader reader, String base, String intervalKey) {
+        return new PromptChannel(reader.bool(base + ".enabled"), duration(reader.string(base + "." + intervalKey)));
     }
 
     private static BlacklistGroup blacklistGroup(ConfigReader reader, String base) {
         return new BlacklistGroup(
-            reader.bool(base + ".enabled", true),
+            reader.bool(base + ".enabled"),
             reader.stringList(base + ".remote-urls"),
             reader.stringList(base + ".local-extra"),
-            duration(reader.string(base + ".connect-timeout", "5s")),
-            duration(reader.string(base + ".read-timeout", "10s")),
-            reader.string(base + ".max-file-size", "1mb")
+            duration(reader.string(base + ".connect-timeout")),
+            duration(reader.string(base + ".read-timeout")),
+            reader.string(base + ".max-file-size")
         );
     }
 

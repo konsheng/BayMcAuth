@@ -21,9 +21,11 @@ import java.util.function.Consumer;
  */
 public final class YamlDocument {
     private final Map<String, Object> values;
+    private final Map<String, Object> defaults;
 
-    private YamlDocument(Map<String, Object> values) {
+    private YamlDocument(Map<String, Object> values, Map<String, Object> defaults) {
         this.values = values;
+        this.defaults = defaults;
     }
 
     public static YamlDocument load(Path path, String defaultText, Consumer<String> warnings) throws IOException {
@@ -35,7 +37,7 @@ public final class YamlDocument {
         if (Files.notExists(path)) {
             Files.createDirectories(path.getParent());
             Files.writeString(path, defaultText, StandardCharsets.UTF_8);
-            return new YamlDocument(defaults);
+            return new YamlDocument(defaults, defaults);
         }
 
         String userText = Files.readString(path, StandardCharsets.UTF_8);
@@ -47,15 +49,27 @@ public final class YamlDocument {
             warn.accept("已自动补全缺失配置或语言键: " + path);
         }
         Map<String, Object> merged = deepMerge(defaults, user);
-        return new YamlDocument(merged);
+        return new YamlDocument(merged, defaults);
     }
 
     public static YamlDocument fromString(String text) {
-        return new YamlDocument(asMap(createYaml().load(text)));
+        Map<String, Object> values = asMap(createYaml().load(text));
+        return new YamlDocument(values, values);
+    }
+
+    public static YamlDocument fromString(String text, String defaultText) {
+        Yaml yaml = createYaml();
+        Map<String, Object> defaults = asMap(yaml.load(defaultText));
+        Map<String, Object> user = asMap(yaml.load(text));
+        return new YamlDocument(deepMerge(defaults, user), defaults);
     }
 
     public Map<String, Object> values() {
         return values;
+    }
+
+    public Map<String, Object> defaults() {
+        return defaults;
     }
 
     private static Yaml createYaml() {

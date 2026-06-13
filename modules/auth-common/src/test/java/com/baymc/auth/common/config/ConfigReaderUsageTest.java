@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class ConfigReaderUsageTest {
     private static final Pattern READER_CALL = Pattern.compile("reader\\.[A-Za-z][A-Za-z0-9_]*\\s*\\(");
+    private static final Pattern DEFAULTABLE_READER_CALL = Pattern.compile("reader\\.(?:string|integer|longValue|bool)\\s*\\(");
 
     @Test
     void configReaderCallsDoNotNestOtherReaderCalls() throws Exception {
@@ -29,6 +30,23 @@ final class ConfigReaderUsageTest {
         }
 
         assertTrue(violations.isEmpty(), () -> "Nested ConfigReader calls are not allowed:\n" + String.join("\n", violations));
+    }
+
+    @Test
+    void authConfigReaderCallsDoNotProvideHardcodedDefaults() throws Exception {
+        Path root = findProjectRoot();
+        Path source = root.resolve("modules/auth-common/src/main/java/com/baymc/auth/common/config/AuthConfig.java");
+        String text = Files.readString(source);
+        Matcher matcher = DEFAULTABLE_READER_CALL.matcher(text);
+        List<String> violations = new ArrayList<>();
+        while (matcher.find()) {
+            int end = findCallEnd(text, matcher.end() - 1);
+            if (end > matcher.end() && text.substring(matcher.end(), end).contains(",")) {
+                violations.add(root.relativize(source) + ":" + lineOf(text, matcher.start()));
+            }
+        }
+
+        assertTrue(violations.isEmpty(), () -> "Config defaults must come from config.yml:\n" + String.join("\n", violations));
     }
 
     private static boolean isMainSourceFile(Path path) {

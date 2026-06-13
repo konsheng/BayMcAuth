@@ -7,6 +7,9 @@ import com.baymc.auth.common.model.AccountType;
 import com.baymc.auth.common.model.NameLock;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -15,8 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 final class IdentityResolverTest {
     @Test
-    void resolvesInConfiguredPriority() {
-        AuthConfig config = AuthConfig.from(YamlDocument.fromString("""
+    void resolvesInConfiguredPriority() throws Exception {
+        AuthConfig config = AuthConfig.from(document("""
             account-types:
               name-affix: true
               name-plain: true
@@ -42,8 +45,8 @@ final class IdentityResolverTest {
     }
 
     @Test
-    void rejectsBlacklistedName() {
-        AuthConfig config = AuthConfig.from(YamlDocument.fromString("""
+    void rejectsBlacklistedName() throws Exception {
+        AuthConfig config = AuthConfig.from(document("""
             account-types:
               name-affix: true
               name-plain: true
@@ -62,5 +65,24 @@ final class IdentityResolverTest {
     private NameLock lock() {
         return new NameLock(1L, "reserved", "Reserved", null, AccountType.OFFLINE_PLAIN, "ADMIN_RESERVED",
             true, "console", null, Instant.now(), false, null, null, null, null);
+    }
+
+    private static YamlDocument document(String text) throws IOException {
+        return YamlDocument.fromString(text, defaultConfig());
+    }
+
+    private static String defaultConfig() throws IOException {
+        return Files.readString(findProjectRoot().resolve("modules/auth-paper/src/main/resources/config.yml"));
+    }
+
+    private static Path findProjectRoot() {
+        Path current = Path.of("").toAbsolutePath();
+        while (current != null) {
+            if (Files.exists(current.resolve("settings.gradle.kts"))) {
+                return current;
+            }
+            current = current.getParent();
+        }
+        throw new IllegalStateException("Project root not found");
     }
 }

@@ -21,7 +21,7 @@ database:
   password: ""
 
   # 表前缀
-  table-prefix: baymc_auth_
+  table-prefix: baymcauth_
 
   # 连接池设置, 时间支持 s, m, h, d
   pool:
