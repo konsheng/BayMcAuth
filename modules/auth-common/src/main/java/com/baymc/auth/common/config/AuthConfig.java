@@ -103,9 +103,7 @@ public record AuthConfig(
             new Password(
                 reader.integer("password.min-length"),
                 reader.integer("password.max-length"),
-                reader.integer("password.bcrypt-cost"),
-                reader.bool("password.store-current-plain"),
-                reader.bool("password.store-history-plain")
+                reader.integer("password.bcrypt-cost")
             ),
             new Totp(
                 reader.string("totp.issuer"),
@@ -227,7 +225,7 @@ public record AuthConfig(
     public record InviteFormat(String prefix, List<Integer> groups, String separator, String charset, boolean uppercase) {
     }
 
-    public record Password(int minLength, int maxLength, int bcryptCost, boolean storeCurrentPlain, boolean storeHistoryPlain) {
+    public record Password(int minLength, int maxLength, int bcryptCost) {
     }
 
     public record Totp(String issuer, int digits, Duration period, int window) {

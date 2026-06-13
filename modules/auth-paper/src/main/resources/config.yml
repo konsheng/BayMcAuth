@@ -115,12 +115,6 @@ password:
   max-length: 64
   bcrypt-cost: 12
 
-  # 风险说明, 保存当前密码明文仅用于指定审计需求
-  store-current-plain: true
-
-  # 风险说明, 保存历史密码明文仅用于指定审计需求
-  store-history-plain: true
-
 # TOTP 设置
 totp:
   issuer: BayMc

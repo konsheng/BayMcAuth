@@ -73,6 +73,14 @@ final class AuthConfigTest {
     }
 
     @Test
+    void defaultConfigDoesNotExposePlainPasswordStorageSwitches() throws Exception {
+        String defaults = defaultConfig();
+
+        assertFalse(defaults.contains("store-current-" + "plain"));
+        assertFalse(defaults.contains("store-history-" + "plain"));
+    }
+
+    @Test
     void loginPromptReadsOnlyDeclaredIntervalKeys() throws Exception {
         List<String> warnings = new ArrayList<>();
 

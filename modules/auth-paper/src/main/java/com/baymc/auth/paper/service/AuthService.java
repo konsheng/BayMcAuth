@@ -143,14 +143,12 @@ public final class AuthService {
         UUID uuid = player.getUniqueId();
         String cipher = PasswordHasher.hash(password, config.password().bcryptCost());
         UserRecord user = new UserRecord(0L, uuid, player.getName(), NameUtil.lower(player.getName()), state.accountType(), true,
-            config.password().storeCurrentPlain() ? password : null, cipher, false, false, null, null,
+            password, cipher, false, false, null, null,
             usedInvite == null ? null : usedInvite.code(), usedInvite == null ? null : usedInvite.id(), false, null, null, null,
             null, playerIp(player), null, null, null, now, now);
         user = users.save(user);
-        if (config.password().storeHistoryPlain()) {
-            passwordHistory.add(new PasswordHistoryEntry(0L, user.uuid(), user.playerName(), user.playerNameLower(), user.accountType(),
-                password, PasswordChangeType.REGISTER, player.getName(), player.getUniqueId(), playerIp(player), serverName, now));
-        }
+        passwordHistory.add(new PasswordHistoryEntry(0L, user.uuid(), user.playerName(), user.playerNameLower(), user.accountType(),
+            password, PasswordChangeType.REGISTER, player.getName(), player.getUniqueId(), playerIp(player), serverName, now));
         if (usedInvite != null) {
             inviteCodes.save(new InviteCode(usedInvite.id(), usedInvite.code(), usedInvite.codeKey(), usedInvite.batchId(), true,
                 user.uuid(), user.playerName(), user.playerNameLower(), user.accountType(), playerIp(player), now, usedInvite.createdBy(),
@@ -409,11 +407,9 @@ public final class AuthService {
 
     private void updatePassword(Player player, UserRecord user, String password, PasswordChangeType changeType) {
         String cipher = PasswordHasher.hash(password, configRef.get().password().bcryptCost());
-        UserRecord updated = users.save(user.withPassword(configRef.get().password().storeCurrentPlain() ? password : null, cipher, Instant.now()));
-        if (configRef.get().password().storeHistoryPlain()) {
-            passwordHistory.add(new PasswordHistoryEntry(0L, updated.uuid(), updated.playerName(), updated.playerNameLower(), updated.accountType(),
-                password, changeType, player.getName(), player.getUniqueId(), playerIp(player), serverName, Instant.now()));
-        }
+        UserRecord updated = users.save(user.withPassword(password, cipher, Instant.now()));
+        passwordHistory.add(new PasswordHistoryEntry(0L, updated.uuid(), updated.playerName(), updated.playerNameLower(), updated.accountType(),
+            password, changeType, player.getName(), player.getUniqueId(), playerIp(player), serverName, Instant.now()));
     }
 
     private void recordFailure(Player player, UUID userUuid, AccountType accountType, FailureActionType actionType, String reason) {

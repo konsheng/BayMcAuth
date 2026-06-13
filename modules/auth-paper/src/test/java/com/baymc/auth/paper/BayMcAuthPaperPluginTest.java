@@ -264,6 +264,18 @@ final class BayMcAuthPaperPluginTest {
         assertFalse(serviceText.contains("\"缺少 Velocity 身份分流结果\""));
     }
 
+    @Test
+    void authServiceAlwaysStoresPlainPasswordsAndHistory() throws Exception {
+        Path source = findProjectRoot().resolve("modules/auth-paper/src/main/java/com/baymc/auth/paper/service/AuthService.java");
+        String text = Files.readString(source);
+
+        assertFalse(text.contains("store" + "CurrentPlain"));
+        assertFalse(text.contains("store" + "HistoryPlain"));
+        assertTrue(text.contains("state.accountType(), true,\n            password, cipher"));
+        assertTrue(text.contains("user.withPassword(password, cipher, Instant.now())"));
+        assertTrue(text.contains("passwordHistory.add(new PasswordHistoryEntry"));
+    }
+
     private static void assertCommandPermission(String text, String command, String permission) {
         assertTrue(text.contains("  " + command + ":\n")
             && text.contains("    permission: \"" + permission + "\""));
