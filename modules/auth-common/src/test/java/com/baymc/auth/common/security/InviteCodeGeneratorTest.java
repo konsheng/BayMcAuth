@@ -8,6 +8,11 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/*
+ * 邀请码生成测试
+ *
+ * <p>验证邀请码格式, 分组, 前缀和查询键规范化
+ */
 final class InviteCodeGeneratorTest {
     @Test
     void generatesConfiguredFormat() {

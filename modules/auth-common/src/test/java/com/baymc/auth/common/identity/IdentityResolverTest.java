@@ -16,6 +16,11 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+/*
+ * 身份分流决策测试
+ *
+ * <p>覆盖账号类型优先级, 黑名单拒绝和玩家可见拒绝原因语言键
+ */
 final class IdentityResolverTest {
     @Test
     void resolvesInConfiguredPriority() throws Exception {

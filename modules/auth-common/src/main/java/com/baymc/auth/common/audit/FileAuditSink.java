@@ -9,6 +9,11 @@ import java.nio.file.Path;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
+/*
+ * 文件审计输出
+ *
+ * <p>按日期将审计消息追加到日志目录, 作为数据库之外的本地留痕
+ */
 public final class FileAuditSink implements AuditSink {
     private static final DateTimeFormatter FILE_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
     private static final DateTimeFormatter LINE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());

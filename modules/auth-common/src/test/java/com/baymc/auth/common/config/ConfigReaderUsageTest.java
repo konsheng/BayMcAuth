@@ -13,6 +13,11 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/*
+ * 配置读取用法回归测试
+ *
+ * <p>防止重新引入嵌套回退读取或硬编码默认值
+ */
 final class ConfigReaderUsageTest {
     private static final Pattern READER_CALL = Pattern.compile("reader\\.[A-Za-z][A-Za-z0-9_]*\\s*\\(");
     private static final Pattern DEFAULTABLE_READER_CALL = Pattern.compile("reader\\.(?:string|integer|longValue|bool)\\s*\\(");

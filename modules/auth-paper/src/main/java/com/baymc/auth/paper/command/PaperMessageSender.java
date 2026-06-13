@@ -7,6 +7,11 @@ import org.bukkit.entity.Player;
 
 import java.util.Map;
 
+/*
+ * Paper 消息发送器
+ *
+ * <p>封装语言文件渲染和 Bukkit 发送入口, 供命令与业务服务统一发送玩家文本
+ */
 public final class PaperMessageSender {
     private volatile Messages messages;
 

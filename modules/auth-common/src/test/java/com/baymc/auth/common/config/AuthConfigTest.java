@@ -13,6 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/*
+ * 运行配置读取测试
+ *
+ * <p>验证默认配置来源, 类型错误兜底和登录提示间隔键读取规则
+ */
 final class AuthConfigTest {
     @Test
     void settingsDebugDefaultsToFalse() throws Exception {

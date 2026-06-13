@@ -11,6 +11,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/*
+ * 失败锁定服务
+ *
+ * <p>根据近期失败记录和配置阈值计算账号或 IP 是否应被临时锁定
+ */
 public final class FailureLockService {
     private final RuntimeConfigRef configRef;
     private final FailureRepository failures;

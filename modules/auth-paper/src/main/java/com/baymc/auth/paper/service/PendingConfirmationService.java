@@ -6,6 +6,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+/*
+ * 高风险操作确认服务
+ *
+ * <p>按执行者保存待确认操作, 并在确认时校验有效期后执行
+ */
 public final class PendingConfirmationService {
     private final Map<String, Pending> pending = new ConcurrentHashMap<>();
 

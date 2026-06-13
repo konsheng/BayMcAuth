@@ -13,6 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/*
+ * MySQL 存储源码测试
+ *
+ * <p>验证连接池驱动配置, 表前缀校验和 SQL 模板资源约束
+ */
 final class MySqlStorageTest {
     @Test
     void hikariConfigSetsMysqlDriverClassName() throws Exception {

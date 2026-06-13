@@ -3,6 +3,11 @@ package com.baymc.auth.common.util;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * 异常摘要工具
+ *
+ * <p>为非 debug 日志生成数据库失败原因列表, 避免默认输出完整堆栈
+ */
 public final class ExceptionSummary {
     private ExceptionSummary() {
     }

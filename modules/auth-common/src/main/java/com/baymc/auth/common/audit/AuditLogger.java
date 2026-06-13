@@ -5,6 +5,11 @@ import com.baymc.auth.common.model.AuditEntry;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * 审计事件分发器
+ *
+ * <p>维护当前启用的审计输出目标, 并保证单个输出失败不会中断认证流程
+ */
 public final class AuditLogger {
     private final List<AuditSink> sinks = new ArrayList<>();
 

@@ -6,6 +6,11 @@ import org.bukkit.command.CommandSender;
 
 import java.util.Arrays;
 
+/*
+ * Paper 短命令适配器
+ *
+ * <p>将 /login, /register 等短命令转发到主命令分发器, 保持行为一致
+ */
 public final class ShortCommand implements CommandExecutor {
     private final BayMcAuthCommand main;
     private final String subcommand;

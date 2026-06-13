@@ -8,6 +8,11 @@ import java.time.Instant;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/*
+ * TOTP 工具测试
+ *
+ * <p>覆盖密钥生成和时间窗口内外验证码校验行为
+ */
 final class TotpUtilTest {
     @Test
     void verifiesCodeInsideWindow() {

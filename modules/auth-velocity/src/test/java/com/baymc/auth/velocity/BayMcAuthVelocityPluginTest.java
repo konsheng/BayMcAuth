@@ -8,6 +8,11 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/*
+ * Velocity 插件源码回归测试
+ *
+ * <p>验证事件注册, 权限校验, 日志策略和玩家可见文本语言化约束
+ */
 final class BayMcAuthVelocityPluginTest {
     @Test
     void pluginMainDoesNotRegisterItselfAsListener() throws Exception {

@@ -9,6 +9,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+/*
+ * 登录状态服务
+ *
+ * <p>在内存中跟踪玩家当前认证阶段, 供监听器和认证服务判断保护状态
+ */
 public final class LoginStateService {
     private final Map<UUID, ProtectionState> states = new ConcurrentHashMap<>();
 

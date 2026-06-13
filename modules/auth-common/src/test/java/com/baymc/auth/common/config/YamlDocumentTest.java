@@ -10,6 +10,11 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/*
+ * YAML 文档补全测试
+ *
+ * <p>验证缺失键补全会保留用户值和注释, 并追加默认配置中的新键
+ */
 final class YamlDocumentTest {
     @TempDir
     Path tempDir;

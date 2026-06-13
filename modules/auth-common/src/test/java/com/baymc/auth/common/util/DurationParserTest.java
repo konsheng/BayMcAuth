@@ -6,6 +6,11 @@ import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/*
+ * 时间长度解析测试
+ *
+ * <p>验证毫秒, 秒, 分钟, 小时和天等配置单位解析
+ */
 final class DurationParserTest {
     @Test
     void parsesSupportedUnits() {

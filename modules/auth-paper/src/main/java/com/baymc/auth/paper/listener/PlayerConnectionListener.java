@@ -15,6 +15,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 
+/*
+ * 玩家连接监听器
+ *
+ * <p>在加入和退出时启动认证流程, 发送登录提示并处理超时踢出
+ */
 public final class PlayerConnectionListener implements Listener {
     private final AuthService authService;
     private final LoginStateService loginStates;

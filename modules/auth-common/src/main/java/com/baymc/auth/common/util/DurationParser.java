@@ -3,6 +3,11 @@ package com.baymc.auth.common.util;
 import java.time.Duration;
 import java.util.Locale;
 
+/*
+ * 时间长度解析工具
+ *
+ * <p>将 s, m, h, d 等配置字符串转换为 Duration
+ */
 public final class DurationParser {
     private DurationParser() {
     }

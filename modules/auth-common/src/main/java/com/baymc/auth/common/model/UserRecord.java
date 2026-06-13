@@ -3,6 +3,11 @@ package com.baymc.auth.common.model;
 import java.time.Instant;
 import java.util.UUID;
 
+/*
+ * 用户账号记录
+ *
+ * <p>保存玩家账号的密码, TOTP, 锁定, 邀请码和登录状态字段
+ */
 public record UserRecord(
     long id,
     UUID uuid,

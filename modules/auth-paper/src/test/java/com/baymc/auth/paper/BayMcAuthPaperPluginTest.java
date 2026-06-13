@@ -8,6 +8,11 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/*
+ * Paper 插件源码回归测试
+ *
+ * <p>验证权限声明, 文档格式, 日志策略和玩家可见文本迁移约束
+ */
 final class BayMcAuthPaperPluginTest {
     @Test
     void databaseFailureStackTraceIsControlledByDebugMode() throws Exception {

@@ -4,6 +4,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/*
+ * 字节大小解析测试
+ *
+ * <p>验证无单位和 b, kb, mb, gb 单位的配置字符串解析
+ */
 final class ByteSizeParserTest {
     @Test
     void parsesByteSizes() {

@@ -20,6 +20,11 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.Set;
 
+/*
+ * 登录保护监听器
+ *
+ * <p>在玩家完成认证前限制移动, 交互和命令执行, 并允许配置中的白名单命令
+ */
 public final class LoginProtectionListener implements Listener {
     private static final Set<String> ALLOWED_COMMANDS = Set.of("/baymcauth", "/auth", "/login", "/register", "/2fa", "/resetpassword");
     private final LoginStateService loginStates;

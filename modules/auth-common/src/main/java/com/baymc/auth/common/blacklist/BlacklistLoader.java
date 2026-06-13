@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+/*
+ * 黑名单加载器
+ *
+ * <p>从远程地址加载关键词并写入本地缓存, 远程失败时尝试读取缓存继续运行
+ */
 public final class BlacklistLoader {
     private BlacklistLoader() {
     }

@@ -5,6 +5,11 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 
+/*
+ * SQL 时间转换工具
+ *
+ * <p>在 Instant 与 JDBC Timestamp 之间做空值安全转换
+ */
 final class SqlTime {
     private SqlTime() {
     }

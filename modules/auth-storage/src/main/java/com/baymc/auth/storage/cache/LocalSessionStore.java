@@ -9,6 +9,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+/*
+ * 本地会话存储
+ *
+ * <p>在内存中保存登录会话, 用于 Redis 不可用或本地会话模式
+ */
 public final class LocalSessionStore implements SessionStore {
     private final Map<UUID, LoginSession> sessions = new ConcurrentHashMap<>();
 

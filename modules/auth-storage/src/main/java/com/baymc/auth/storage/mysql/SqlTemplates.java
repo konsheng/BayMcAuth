@@ -6,6 +6,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/*
+ * MySQL SQL 模板加载器
+ *
+ * <p>从 classpath 读取 SQL 资源并替换受控表名占位符
+ */
 final class SqlTemplates {
     private static final Map<String, String> CACHE = new ConcurrentHashMap<>();
 

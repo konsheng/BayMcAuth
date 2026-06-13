@@ -7,6 +7,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/*
+ * 用户仓库接口
+ *
+ * <p>提供账号按 UUID, 名字和账号类型查询以及保存能力
+ */
 public interface UserRepository {
     Optional<UserRecord> findByUuid(UUID uuid);
 

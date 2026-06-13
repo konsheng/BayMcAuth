@@ -15,6 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/*
+ * 邀请码管理服务
+ *
+ * <p>负责创建, 查询, 撤销邀请码并写入操作者信息
+ */
 public final class InviteService {
     private final InviteCodeRepository invites;
     private final RuntimeConfigRef configRef;

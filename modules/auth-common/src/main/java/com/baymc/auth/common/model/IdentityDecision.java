@@ -3,6 +3,11 @@ package com.baymc.auth.common.model;
 import java.util.Map;
 import java.util.UUID;
 
+/*
+ * 身份分流决策结果
+ *
+ * <p>携带是否允许进入, 账号类型, 强制 UUID 和玩家可见拒绝原因语言键
+ */
 public record IdentityDecision(
     boolean allowed,
     AccountType accountType,

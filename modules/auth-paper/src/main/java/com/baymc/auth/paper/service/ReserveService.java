@@ -13,6 +13,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+/*
+ * 预留名管理服务
+ *
+ * <p>负责离线名预留, 撤销和查询, 并校验用户名黑名单与已有账号
+ */
 public final class ReserveService {
     private final NameLockRepository nameLocks;
     private final UserRepository users;

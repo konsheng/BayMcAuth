@@ -1,5 +1,10 @@
 package com.baymc.auth.common.model;
 
+/*
+ * 审计事件类型
+ *
+ * <p>枚举认证, TOTP, 密码和 Velocity 分流等可记录的安全事件
+ */
 public enum AuditEventType {
     PLAYER_REGISTER,
     PLAYER_LOGIN_SUCCESS,

@@ -2,6 +2,11 @@ package com.baymc.auth.common.platform;
 
 import java.util.concurrent.CompletableFuture;
 
+/*
+ * 平台调度接口
+ *
+ * <p>屏蔽 Paper 和 Folia 调度差异, 供业务按玩家或全局执行任务
+ */
 public interface AuthScheduler<P> {
     void runGlobal(Runnable task);
 

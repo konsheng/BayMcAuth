@@ -2,6 +2,11 @@ package com.baymc.auth.common.util;
 
 import java.util.Locale;
 
+/*
+ * 玩家名工具
+ *
+ * <p>提供玩家名规范化, Minecraft 名称校验和中文字符检测
+ */
 public final class NameUtil {
     private NameUtil() {
     }

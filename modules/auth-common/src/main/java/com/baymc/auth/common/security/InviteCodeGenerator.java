@@ -7,6 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/*
+ * 邀请码生成工具
+ *
+ * <p>负责生成随机邀请码并计算大小写无关的查询键
+ */
 public final class InviteCodeGenerator {
     private static final SecureRandom RANDOM = new SecureRandom();
 

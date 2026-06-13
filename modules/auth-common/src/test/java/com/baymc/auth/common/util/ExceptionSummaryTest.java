@@ -6,6 +6,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/*
+ * 异常摘要测试
+ *
+ * <p>验证数据库失败原因按异常链格式化并压缩多余空白
+ */
 final class ExceptionSummaryTest {
     @Test
     void formatsOuterExceptionAndCauses() {

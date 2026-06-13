@@ -2,6 +2,11 @@ package com.baymc.auth.common.util;
 
 import java.util.Locale;
 
+/*
+ * 字节大小解析工具
+ *
+ * <p>将带单位的配置字符串转换为字节数, 用于限制远程资源大小
+ */
 public final class ByteSizeParser {
     private ByteSizeParser() {
     }

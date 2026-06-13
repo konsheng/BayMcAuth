@@ -13,6 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/*
+ * 内存仓库测试
+ *
+ * <p>覆盖本地降级仓库的用户, 邀请码, 预留名, 失败记录和审计行为
+ */
 final class InMemoryRepositoriesTest {
     @Test
     void storesInviteAndNameLock() {
