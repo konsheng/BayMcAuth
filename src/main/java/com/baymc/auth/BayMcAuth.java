@@ -43,6 +43,7 @@ import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.event.EventManager;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.PluginContainer;
@@ -95,6 +96,7 @@ import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.title.Title;
+import org.bstats.velocity.Metrics;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -114,6 +116,8 @@ import org.slf4j.Logger;
 public class BayMcAuth {
 
   public static final Ratelimiter<InetAddress> RATELIMITER = Ratelimiters.createWithMilliseconds(5000);
+
+  private static final int BSTATS_PLUGIN_ID = 35439;
 
   @MonotonicNonNull
   private static Logger LOGGER;
@@ -138,6 +142,7 @@ public class BayMcAuth {
   private final HttpClient client = HttpClient.newHttpClient();
 
   private final ProxyServer server;
+  private final Metrics.Factory metricsFactory;
   private final Path dataDirectory;
   private final File dataDirectoryFile;
   private final LimboFactory factory;
@@ -159,6 +164,8 @@ public class BayMcAuth {
   private ScheduledTask purgeCacheTask;
   private ScheduledTask purgePremiumCacheTask;
   private ScheduledTask purgeBruteforceCacheTask;
+  @Nullable
+  private Metrics metrics;
 
   private ConnectionSource connectionSource;
   private Dao<RegisteredPlayer, String> playerDao;
@@ -166,10 +173,11 @@ public class BayMcAuth {
   private Limbo authServer;
 
   @Inject
-  public BayMcAuth(Logger logger, ProxyServer server, @DataDirectory Path dataDirectory) {
+  public BayMcAuth(Logger logger, ProxyServer server, @DataDirectory Path dataDirectory, Metrics.Factory metricsFactory) {
     setLogger(logger);
 
     this.server = server;
+    this.metricsFactory = metricsFactory;
 
     this.dataDirectory = dataDirectory.resolveSibling("BayMcAuth");
 
@@ -191,12 +199,20 @@ public class BayMcAuth {
 
     try {
       this.reload();
+      this.metrics = this.metricsFactory.make(this, BSTATS_PLUGIN_ID);
     } catch (ConfigurationException exception) {
       LOGGER.error("配置加载失败, 代理服务器将关闭: {}", exception.getMessage());
       this.server.shutdown();
     } catch (SQLRuntimeException exception) {
       LOGGER.error("初始化数据库时发生 SQL 异常", exception);
       this.server.shutdown();
+    }
+  }
+
+  @Subscribe
+  public void onProxyShutdown(ProxyShutdownEvent event) {
+    if (this.metrics != null) {
+      this.metrics.shutdown();
     }
   }
 
