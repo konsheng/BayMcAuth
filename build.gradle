@@ -1,0 +1,166 @@
+plugins {
+    id("java")
+    id("checkstyle")
+    id("com.github.spotbugs").version("6.5.13")
+    id("com.gradleup.shadow").version("9.6.1")
+}
+
+setGroup("com.baymc")
+setVersion("1.0.0")
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+    setSourceCompatibility(JavaVersion.VERSION_25)
+    setTargetCompatibility(JavaVersion.VERSION_25)
+}
+
+compileJava {
+    getOptions().setEncoding("UTF-8")
+    getOptions().getRelease().set(25)
+}
+
+repositories {
+    mavenCentral()
+
+    maven {
+        setName("elytrium-repo")
+        setUrl("https://maven.elytrium.net/repo/")
+    }
+    maven {
+        setName("papermc-repo")
+        setUrl("https://repo.papermc.io/repository/maven-public/")
+    }
+    maven {
+        setName("opencollab-snapshot")
+        setUrl("https://repo.opencollab.dev/maven-snapshots")
+    }
+}
+
+dependencies {
+    compileOnly("net.elytrium.limboapi:api:$limboapiVersion")
+    compileOnly("net.elytrium.commons:utils:$elytriumCommonsVersion")
+    compileOnly("net.elytrium.commons:velocity:$elytriumCommonsVersion")
+
+    compileOnly("com.velocitypowered:velocity-api:$velocityVersion")
+    annotationProcessor("com.velocitypowered:velocity-api:$velocityVersion")
+    compileOnly("com.velocitypowered:velocity-proxy:$velocityVersion") // 来自 Elytrium Maven 仓库
+    compileOnly("net.kyori:adventure-text-minimessage")
+
+    // 部分 Velocity 内部方法需要这些依赖
+    compileOnly("io.netty:netty-codec:$nettyVersion")
+    compileOnly("io.netty:netty-handler:$nettyVersion")
+
+    compileOnly("org.geysermc.floodgate:api:$floodgateVersion")
+
+    implementation("at.favre.lib:bcrypt:0.9.0")
+    implementation("dev.samstevens.totp:totp:1.7.1")
+
+    implementation("com.j256.ormlite:ormlite-jdbc:6.1")
+    implementation("org.yaml:snakeyaml:2.7")
+
+    compileOnly("com.github.spotbugs:spotbugs-annotations:$spotbugsVersion")
+}
+
+jar {
+    getArchiveClassifier().set("plain")
+}
+
+shadowJar {
+    setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+    getArchiveClassifier().set("")
+
+    exclude("META-INF/licenses/**")
+    exclude("META-INF/maven/**")
+    exclude("META-INF/versions/**")
+    exclude("META-INF/AL2.0")
+    exclude("META-INF/INFO_BIN")
+    exclude("META-INF/INFO_SRC")
+    exclude("META-INF/LGPL2.1")
+    exclude("META-INF/LICENSE")
+    exclude("META-INF/NOTICE")
+    exclude("META-INF/README")
+    exclude("META-INF/*.txt")
+    exclude("com/j256/ormlite/**/*.txt")
+    exclude("org/apache/commons/codec/language/**")
+    exclude("org/checkerframework/**")
+    exclude("**/package-info.class")
+
+    minimize {
+        exclude(dependency("org.yaml:snakeyaml:.*"))
+    }
+
+    relocate("at.favre.lib", "com.baymc.auth.thirdparty.at.favre.lib")
+    relocate("com.j256.ormlite", "com.baymc.auth.thirdparty.com.j256.ormlite")
+    relocate("dev.samstevens.totp", "com.baymc.auth.thirdparty.dev.samstevens.totp")
+    relocate("org.apache.commons.codec", "com.baymc.auth.thirdparty.org.apache.commons.codec")
+    relocate("net.elytrium.commons.velocity", "net.elytrium.limboapi.thirdparty.commons.velocity")
+    relocate("org.yaml.snakeyaml", "com.baymc.auth.thirdparty.org.yaml.snakeyaml")
+}
+
+checkstyle {
+    setToolVersion("10.1")
+    setConfigFile(file("${this.getRootDir()}/config/checkstyle/checkstyle.xml"))
+    setConfigProperties("configDirectory": "${this.getRootDir()}/config/checkstyle")
+
+    // 发现检查错误或警告时立即终止构建
+    setMaxErrors(0)
+    setMaxWarnings(0)
+}
+
+spotbugsMain {
+    setExcludeFilter(file("${this.getRootDir()}/config/spotbugs/suppressions.xml"))
+
+    reports {
+        html {
+            getRequired().set(true)
+            getOutputLocation().set(layout.buildDirectory.file("reports/spotbugs/main/spotbugs.html"))
+            setStylesheet("fancy-hist.xsl")
+        }
+    }
+}
+
+def javadocJar = tasks.register("javadocJar", Jar) {
+    getArchiveClassifier().set("javadoc")
+    from(tasks.named("javadoc"))
+}
+
+def sourcesJar = tasks.register("sourcesJar", Jar) {
+    getArchiveClassifier().set("sources")
+    from(sourceSets.main.getAllSource())
+}
+
+javadoc {
+    getOptions().setEncoding("UTF-8")
+    getOptions().setCharSet("UTF-8")
+    getOptions().setSource("25")
+    // 保留其他文档检查, 跳过缺少文档注释和标签的警告
+    getOptions().addBooleanOption("Xdoclint:all,-missing", true)
+    // 让 Javadoc 的诊断输出与 Gradle 读取的编码一致
+    getOptions().jFlags("-Dstdout.encoding=UTF-8", "-Dstderr.encoding=UTF-8")
+    getOptions().links("https://docs.oracle.com/en/java/javase/25/docs/api/")
+}
+
+sourceSets.main.getJava().srcDir(
+        getTasks().register("generateTemplates", Copy) {
+            task -> {
+                String version = getVersion().contains("-") ? "${getVersion()} (git-${getCurrentShortRevision()})" : getVersion()
+                task.getInputs().properties("version": version)
+                task.from(file("src/main/templates")).into(getLayout().getBuildDirectory().dir("generated/sources/templates"))
+                task.expand("version": version)
+            }
+        }.map {
+            it.getOutputs()
+        }
+)
+
+tasks.named("assemble") {
+    dependsOn(tasks.named("shadowJar"), javadocJar, sourcesJar)
+}
+
+String getCurrentShortRevision() {
+    return providers.exec {
+        commandLine("git", "rev-parse", "--short", "HEAD")
+    }.standardOutput.asText.get().trim()
+}

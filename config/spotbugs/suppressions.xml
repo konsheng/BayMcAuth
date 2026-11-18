@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<FindBugsFilter>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
+    </Match>
+    <!-- 排除 try-with-resources 代码触发的误报 -->
+    <Match>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
+    <Match>
+        <Bug pattern="DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED"/>
+    </Match>
+    <Match>
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_THROWABLE"/>
+    </Match>
+    <!-- 这些配置字段由 ConfigurationLoader 通过反射写入, 完整校验后才发布 -->
+    <Match>
+        <Bug pattern="UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"/>
+        <Class name="com.baymc.auth.Settings$MAIN$BACKEND_API"/>
+        <Field name="~TOKEN|ENABLED_ENDPOINTS"/>
+    </Match>
+    <Match>
+        <Bug pattern="NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"/>
+        <Class name="com.baymc.auth.BayMcAuth"/>
+        <Field name="DATABASE" type="com.baymc.auth.Settings$DATABASE"/>
+    </Match>
+    <Match>
+        <Bug pattern="NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"/>
+        <Or>
+            <Class name="com.baymc.auth.backend.Endpoint"/>
+            <Class name="com.baymc.auth.listener.BackendEndpointsListener"/>
+        </Or>
+        <Field name="ENABLED_ENDPOINTS" type="java.util.List"/>
+    </Match>
+    <Match>
+        <Bug pattern="NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"/>
+        <Class name="com.baymc.auth.config.ConfigurationLoader"/>
+        <Method name="validate"/>
+        <Field name="TOKEN" type="java.lang.String"/>
+    </Match>
+    <!-- 插件实例通过 volatile 字段发布已校验的完整配置 -->
+    <Match>
+        <Bug pattern="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"/>
+        <Class name="com.baymc.auth.BayMcAuth"/>
+        <Method name="reload"/>
+        <Field name="IMP" type="com.baymc.auth.Settings"/>
+    </Match>
+</FindBugsFilter>

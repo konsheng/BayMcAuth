@@ -1,0 +1,209 @@
+main:
+  # 玩家完成认证的最长时间, 单位为毫秒, 在认证虚拟服中停留超过此时间的玩家会被踢出
+  auth-time: 60000
+  # 是否启用 BossBar 登录倒计时
+  enable-bossbar: true
+  # 可用颜色: PINK, BLUE, RED, GREEN, YELLOW, PURPLE, WHITE
+  bossbar-color: "GREEN"
+  # 可用进度条样式: PROGRESS, NOTCHED_6, NOTCHED_10, NOTCHED_12, NOTCHED_20
+  bossbar-overlay: "NOTCHED_20"
+  min-password-length: 4
+  # 本插件使用 BCrypt 哈希算法, 密码最大长度不能超过 71, 可以设置为小于 71 的值
+  max-password-length: 71
+  # 注册和玩家改密时检查弱密码黑名单, 管理员强制改密不受此项限制
+  check-password-strength: true
+  # 启用检查后会创建缺失的空名单, 请按每行一个密码填写
+  unsafe-passwords-file: "unsafe_passwords.txt"
+  # 启用后, 使用正版用户名的玩家需要注册或认证
+  # 禁用后, 使用正版用户名的玩家必须通过正版 Minecraft 账号登录
+  online-mode-need-auth: true
+  # 警告: 此功能为实验性功能, 请仅在明确了解影响时禁用
+  # 启用后, 保持 'online-mode-need-auth' 的默认行为
+  # 禁用后, 未注册玩家在正版认证失败一次后将不再进行正版认证,
+  # 允许离线模式玩家使用正版用户名
+  # 启用时不改变行为, 禁用时要求 'save-premium-accounts: true', 'online-mode-need-auth: false' 和 'purge-premium-cache-millis > 100000'
+  online-mode-need-auth-strict: true
+  # 禁用此选项需要安装 floodgate 插件
+  floodgate-need-auth: true
+  # 强制使用离线模式, 完全禁用混合认证功能
+  force-offline-mode: true
+  # 强制所有玩家使用离线 UUID
+  force-offline-uuid: true
+  # 启用后, 优先通过本地数据库判断玩家是否为正版, 再通过 Mojang API 查询
+  check-premium-priority-internal: true
+  # 向玩家发送认证成功标题和消息前的延迟, 单位为毫秒 (例如 login-premium-title, login-floodgate)
+  premium-and-floodgate-messages-delay: 1250
+  # 强制将玩家 UUID 设置为数据库中保存的值
+  # 如果玩家曾使用离线账号, 后来改用正版账号, 仍将使用原离线 UUID
+  save-uuid: true
+  # 将通过 online-mode-need-auth: false 登录的正版玩家账号保存到数据库
+  # 可禁用此选项以减少数据库中存储的数据量
+  save-premium-accounts: true
+  # 开启双重验证相关命令入口, 允许玩家管理 TOTP
+  enable-totp: true
+  # 开启 TOTP 时要求输入当前账号密码: /2fa enable <当前密码>, 设为 false 后只需 /2fa enable
+  totp-need-password: true
+  # 注册时要求输入两次密码: /register <密码> <重复密码>, 关闭后只输入一次
+  register-need-repeat-password: true
+  # 玩家自行改密时要求旧密码: /changepassword <旧密码> <新密码>, 关闭后只需新密码
+  change-password-need-old-password: true
+  # 用于 unregister 和 premium 命令
+  confirm-keyword: "confirm"
+  # 添加到离线模式玩家名称前的前缀
+  offline-mode-prefix: ""
+  # 添加到正版模式玩家名称前的前缀
+  online-mode-prefix: ""
+  # 登录时虚拟世界的维度
+  # 可用维度: OVERWORLD, NETHER, THE_END
+  dimension: "THE_END"
+  # 清理已登录会话缓存, 同一 IP, 同一用户名重连时, 可利用缓存免去重复认证
+  purge-cache-millis: 3600000
+  # 清理正版账号判断缓存, 减少重复查询 Mojang 和数据库
+  purge-premium-cache-millis: 28800000
+  # 清理 IP 的密码, 验证码错误计数, 配合防爆破次数上限使用
+  purge-bruteforce-cache-millis: 28800000
+  # 当疑似攻击者输错密码时, 用于封禁其 IP 的次数阈值
+  bruteforce-max-attempts: 10
+  # 二维码生成器 URL, 使用 {data} 占位符
+  qr-generator-url: "https://api.qrserver.com/v1/create-qr-code/?data={data}&size=500x500&ecc=M&margin=10"
+  # 双重验证的服务名称, 会写入二维码, 供验证器应用识别账号所属服务
+  totp-issuer: "BayMcAuth"
+  # BCrypt 密码哈希的计算成本, 数值越大计算越慢, CPU 消耗越高, 每增加 1, 主要计算量约翻倍
+  bcrypt-cost: 10
+  # 每次认证连接允许的密码尝试次数, 密码错误达到此次数后会被踢出, 不直接控制 TOTP 验证码次数
+  login-attempts: 3
+  # 开启双重验证时生成并向玩家展示的恢复码数量
+  # 当前恢复码仅生成和展示, 尚未实现恢复码验证或恢复登录
+  totp-recovery-codes-amount: 16
+  # 同 IP 时间段内最多注册账户数量
+  ip-limit-registrations: 3
+  # 同 IP 注册数量限制的有效时间, 单位为毫秒, 设置为 0 可禁用有效期
+  ip-limit-valid-time: 21600000
+  # 允许使用的玩家名称正则表达式
+  # ^ 表示行首, $ 表示行尾
+  # [A-Za-z0-9_] 表示由 A-Z, a-z, 0-9 和 _ 组成的字符集
+  # 玩家名称长度由下方正则表达式中的量词控制
+  allowed-nickname-regex: "^[A-Za-z0-9_]{3,16}$"
+  # 是否加载世界文件
+  load-world: false
+  # 世界文件类型:
+  #  SCHEMATIC (MCEdit .schematic, 适用于 1.12.2 及更低版本, 不推荐)
+  #  STRUCTURE (结构方块 .nbt, 支持任意 Minecraft 版本, 推荐使用最新版本)
+  #  WORLDEDIT_SCHEM (WorldEdit .schem, 支持任意 Minecraft 版本, 推荐使用最新版本)
+  world-file-type: "STRUCTURE"
+  world-file-path: "world.nbt"
+  disable-falling: true
+  # 世界时间, 单位为 tick (24000 tick == 1 个游戏日)
+  world-ticks: 1000
+  # 世界光照等级 (范围为 0 到 15)
+  world-light-level: 15
+  # 可用模式: ADVENTURE, CREATIVE, SURVIVAL, SPECTATOR
+  game-mode: "ADVENTURE"
+  # 自定义 isPremium 查询 URL
+  # 可以使用 Mojang API (默认值)
+  # 也可以使用 CloudFlare API: https://api.ashcon.app/mojang/v2/user/%s
+  # 或参考以下代码搭建自己的 API: https://blog.cloudflare.com/minecraft-api-with-workers-coffeescript/
+  # 也可以自行实现 API, 仅在玩家为正版时返回 HTTP 状态码 200 (参见下方参数)
+  ispremium-auth-url: "https://api.mojang.com/users/profiles/minecraft/%s"
+  # 状态码 (参见上方注释)
+  # 未列出的状态码将被视为服务器错误响应
+  # 使用 Mojang 或 CloudFlare API 时设置为 200
+  status-code-user-exists: [200]
+  # 使用 Mojang API 时设置为 204 和 404, 使用 CloudFlare API 时设置为 404
+  status-code-user-not-exists: [204, 404]
+  # 使用 Mojang 或 CloudFlare API 时设置为 429
+  status-code-rate-limit: [429]
+  # Mojang API 的用户存在响应示例: {"name":"hevav","id":"9c7024b2a48746b3b3934f397ae5d70f"}
+  # CloudFlare API 的用户存在响应示例: {"uuid":"9c7024b2a48746b3b3934f397ae5d70f","username":"hevav", ...}
+  #
+  # Mojang API 的用户不存在响应示例 (有时可能为空): {"path":"/users/profiles/minecraft/someletters1234566","errorMessage":"未找到该名称对应的档案"}
+  # CloudFlare API 的用户不存在响应示例: {"code":404,"error":"未找到","reason":"未找到用户名为 'someletters123456' 的用户"}
+  #
+  # 不符合预期结构的响应将被视为服务器错误响应
+  # 将此参数设置为 [] 可禁用 JSON 结构验证
+  user-exists-json-validator-fields: ["name", "id"]
+  json-uuid-field: "id"
+  user-not-exists-json-validator-fields: []
+  # 当 Mojang 对服务器限流时, 无法判断玩家是否为正版
+  # 此选项决定在 Mojang 限流期间, 将所有玩家视为正版玩家还是离线玩家
+  # true - 视为正版玩家; false - 视为离线玩家
+  on-rate-limit-premium: true
+  # 当 Mojang API 不可用时, 无法判断玩家是否为正版
+  # 此选项决定在 Mojang API 不可用期间, 将所有玩家视为正版玩家还是离线玩家
+  # true - 视为正版玩家; false - 视为离线玩家
+  on-server-error-premium: true
+  register-command: ["/r", "/reg", "/register"]
+  login-command: ["/l", "/log", "/login"]
+  totp-command: ["/2fa", "/totp"]
+  # 新玩家将被踢出, 并显示 registrations-disabled-kick 消息
+  disable-registrations: false
+  world-coords:
+    x: 0
+    y: 0
+    z: 0
+  auth-coords:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    yaw: 0.0
+    pitch: 0.0
+  cracked-title-settings:
+    fade-in: 10
+    stay: 70
+    fade-out: 20
+    clear-after-login: false
+  premium-title-settings:
+    fade-in: 10
+    stay: 70
+    fade-out: 20
+
+  # 后端 API
+  backend-api:
+    # 是否启用后端 API
+    # PlaceholderAPI 扩展需要启用此功能才能工作 (https://github.com/UserNugget/LimboAuth-Expansion)
+    enabled: false
+    # 首次创建配置时自动生成, 已有配置启用后端API前需填写非空令牌
+    token: ""
+    # 可用接口:
+    #  premium_state, hash, totp_token, login_date, reg_date,
+    #  uuid, premium_uuid, ip, login_ip
+    enabled-endpoints: ["premium_state", "login_date", "reg_date", "uuid", "premium_uuid"]
+
+  # 可用值: FALSE, TRUE, PERMISSION
+  #  FALSE - 禁止执行命令
+  #  TRUE - 权限状态未被明确设置为 false 时允许执行命令
+  #  PERMISSION - 权限状态为 true 时允许执行命令
+  command-permission-state:
+    # 权限: baymcauth.commands.changepassword
+    change-password: "PERMISSION"
+    # 权限: baymcauth.commands.destroysession
+    destroy-session: "PERMISSION"
+    # 权限: baymcauth.commands.premium
+    premium: "PERMISSION"
+    # 权限: baymcauth.commands.totp
+    totp: "PERMISSION"
+    # 权限: baymcauth.commands.unregister
+    unregister: "PERMISSION"
+    # 权限: baymcauth.admin.forcechangepassword
+    force-change-password: "PERMISSION"
+    # 权限: baymcauth.admin.forceregister
+    force-register: "PERMISSION"
+    # 权限: baymcauth.admin.forcelogin
+    force-login: "PERMISSION"
+    # 权限: baymcauth.admin.forceunregister
+    force-unregister: "PERMISSION"
+    # 权限: baymcauth.admin.reload
+    reload: "PERMISSION"
+    # 权限: baymcauth.admin.help
+    help: "TRUE"
+
+# 数据库设置
+database:
+  # 数据库类型: mariadb, mysql, postgresql, sqlite 或 h2, sqlite
+  storage-type: "SQLITE"
+  # 网络数据库设置
+  hostname: "127.0.0.1:3306"
+  user: "user"
+  password: "password"
+  database: "baymcauth"
+  connection-parameters: "?autoReconnect=true&initialTimeout=1&useSSL=false"
