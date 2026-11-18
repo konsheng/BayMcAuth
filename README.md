@@ -60,3 +60,7 @@ BayMcAuth  使用 [LimboAPI](https://github.com/Elytrium/LimboAPI) 提供虚拟�
 - ***baymcauth.admin.forcelogin* | /forcelogin** - 强制通过指定玩家的认证
 - ***baymcauth.admin.reload* | /baymcauth reload** - 重新加载插件配置
 - ***baymcauth.admin.***\* - 授予全部管理员命令权限
+
+## 许可证
+
+本项目采用 [GNU General Public License v3.0](LICENSE) 许可证
